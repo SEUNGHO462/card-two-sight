@@ -1,0 +1,35 @@
+apply plugin: 'application'
+dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    def os = System.getProperty('os.name').toLowerCase()
+    def nativeOs = os.contains('win') ? 'natives-windows' : os.contains('mac') ? 'natives-macos' : 'natives-linux'
+    ['lwjgl', 'lwjgl-glfw', 'lwjgl-jemalloc', 'lwjgl-openal', 'lwjgl-opengl', 'lwjgl-stb'].each { module ->
+        runtimeOnly "org.lwjgl:$module:3.3.3:$nativeOs"
+    }
+}
+application {
+    mainClass = 'kr.ac.c2s.lwjgl3.DesktopLauncher'
+    applicationName = 'CARD_TWO_SIGHT'
+    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8']
+}
+sourceSets.main.resources.srcDirs = [rootProject.file('assets')]
+tasks.named('run', JavaExec) {
+    workingDir = rootProject.projectDir
+    ['c2s.dataDir', 'c2s.smokeDir', 'c2s.noAudio'].each { name ->
+        if (System.getProperty(name)) systemProperty name, System.getProperty(name)
+    }
+    if (project.hasProperty('appArgs')) args project.property('appArgs').split(' ')
+}
+
+// Enumerating every JAR with an absolute path exceeds cmd.exe's 8191-character
+// limit in long workspace paths. Java expands a directory wildcard itself.
+tasks.named('startScripts') {
+    doLast {
+        windowsScript.text = windowsScript.readLines().collect { line ->
+            line.startsWith('set CLASSPATH=') ? 'set CLASSPATH=%APP_HOME%\\lib\\*' : line
+        }.join('\r\n') + '\r\n'
+    }
+}
