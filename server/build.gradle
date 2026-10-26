@@ -1,0 +1,3 @@
+apply plugin: 'application'
+dependencies { api project(':common') }
+application { mainClass = 'kr.ac.c2s.server.ServerLauncher' }
