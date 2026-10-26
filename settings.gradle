@@ -1,0 +1,3 @@
+pluginManagement { repositories { gradlePluginPortal(); mavenCentral() } }
+rootProject.name = 'card-two-sight'
+include 'common', 'server', 'core', 'lwjgl3'

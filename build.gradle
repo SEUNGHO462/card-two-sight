@@ -1,0 +1,16 @@
+allprojects {
+    group = 'kr.ac.c2s'
+    version = '0.1.0'
+    repositories { mavenCentral() }
+}
+subprojects {
+    apply plugin: 'java-library'
+    java { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
+    tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+    tasks.withType(Test).configureEach { useJUnitPlatform() }
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.11.4')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+}
