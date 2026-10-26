@@ -1,0 +1,7 @@
+{
+  "method": "Built-in image_gen.imagegen",
+  "transparent_background": true,
+  "source": "C:\\Users\\SEUNGHO\\.codex\\generated_images\\01a0c71e-ef6f-7da1-869f-2c6367a79932\\exec-442f9d66-9031-4551-925a-9792e8ed555d.png",
+  "target": "C:/Users/SEUNGHO/Desktop/card-two-sight/assets/characters/roulette/female_silver-poses-v3.png",
+  "prompt": "Edit this existing 3-by-2 character sprite sheet. Preserve the same adult silver-haired woman, purple coat, patterned scarf, face, six seated poses, facial expressions, pixel-art style, lighting, transparent background and exact equal-cell layout. Add one small antique revolver held naturally in her right hand in each of the six cells. The revolver barrel must point vertically UP toward empty space above her hand, clearly OUTSIDE and away from the head and torso silhouette, with a visible gap from her body. Adjust only the gripping fingers and minimal forearm position necessary to hold it. For lower-hand poses, position that hand slightly to the outer side of the chair so the upward barrel has open space and does not align with her face or body. No aiming at anyone, no firing, no smoke, no effects, no wounds. No other changes, no extra objects, no text, no background or cell borders. Keep genuine alpha transparency outside the figures."
+}

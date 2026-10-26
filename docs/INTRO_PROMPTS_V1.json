@@ -1,0 +1,22 @@
+{
+  "generator": "built-in image_gen",
+  "type": "static intro scene assets; animation and sound not connected",
+  "prompts": [
+    {
+      "scene": 1,
+      "prompt": "Use case: stylized-concept. Create ONE full-screen 16:9 cinematic intro background for the 2D game CARD TWO SIGHT, NOT a storyboard, no panels. Detailed pixel-art noir heist casino aesthetic, hand-painted pixel clusters, dark burgundy curtains, distressed wood, muted green felt gaming table, antique brass details. Scene 1 of a cohesive intro: nearly pitch-black hidden backroom after a robbery. Distant police red and blue emergency lights enter through narrow slatted windows and stripe the shadowy wall, curtains, and edge of the foreground green felt table. Police cars and people remain outside frame, no visible police or text. Mostly deep black, faint hazy light beams, alternating-color impression captured as a still; ominous escape atmosphere, not a bright neon nightclub. Wide eye-level view toward table and rear door, substantial dark negative space. No UI, no captions, no watermark. This image is the opening dark police-light scene; do not show a money bag yet."
+    },
+    {
+      "scene": 2,
+      "prompt": "Use case: illustration-story. Create ONE 16:9 full-screen second intro frame for CARD TWO SIGHT. Reference image is the preceding scene: preserve its exact dark antique casino backroom architecture, door centered rear, slatted windows, burgundy curtains, green felt table foreground, detailed noir pixel-art texture. Same fixed camera and no people. A heavy CLOSED worn black leather money duffel with brass zipper has just been thrown down onto the CENTER of the green felt table, dominating lower middle; bag compressed from landing with subtle drawn dust flecks and a few loose banknotes, no cartoon motion lettering. Table lit by a dim warm overhead light; police red-blue reflections still faint through windows. Rear door firmly shut. Do not open bag yet. No firearm yet. No text, UI, watermark, border or panels. Moody illicit heist atmosphere, retain reference composition for animation continuity."
+    },
+    {
+      "scene": 3,
+      "prompt": "Use case: precise-object-edit. Edit the supplied second intro frame into the third frame of CARD TWO SIGHT. Keep the SAME fixed 16:9 camera, casino room, rear door, blinds with faint red-blue police light, curtains, felt table, pixel-art noir rendering and bag location. Change only the money duffel and immediate tabletop: the bag is now unzipped and held naturally wide open without any person or hands visible. Inside are dense stacks of stolen banknotes. Nestled among the money are aged ivory and black NUMBER tiles with clearly printed simple digits 1, 4, 7, 9, and one antique steel revolver with walnut grip resting inert horizontally among the notes, barrel pointing away toward empty right edge. No person, no aiming, no firing, no injury. Warm amber overhead light now illuminates the money, cards and metal, while background stays dark. Opening should be large enough to read these story props at a glance. No interface, captions, logo, watermark or panels. Preserve environment geometry and continuity."
+    },
+    {
+      "scene": 4,
+      "prompt": "Use case: stylized-concept. Create the FOURTH final intro title frame for the 2D noir heist casino game CARD TWO SIGHT. Use supplied image as continuity reference: preserve same 16:9 fixed camera, room, burgundy curtains, narrow windows with red-blue police reflections, green felt table and open money bag full of cash, number tiles and a resting revolver. Darken environment slightly for clear readable title, keep bag recognizable in lower half. Add beautiful large centered distressed antique GOLD SERIF game logo in upper-middle dark wall area reading EXACTLY 'CARD TWO SIGHT', on two balanced lines 'CARD TWO' / 'SIGHT', restrained thin gold ornamental framing with tiny diamond card motifs. Typography clean, sharp, no extra letters. Warm subtle glow and a few dust flecks. No subtitle, no buttons, no start prompt, no UI, no additional words or watermark. Detailed 2D pixel-art narrative game style same as reference, ominous restrained theatrical lighting."
+    }
+  ]
+}

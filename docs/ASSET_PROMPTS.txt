@@ -1,0 +1,25 @@
+Runtime image generation — built-in image_gen.imagegen
+
+[
+  {
+    "key": "background",
+    "alpha": false,
+    "prompt": "Edit this pixel-art casino image into a clean reusable 16:9 GAME BACKGROUND. Preserve the room, camera perspective, two empty chairs, hanging lamp, green table, burgundy curtains, battered wood, money bag with cash at left, chips, revolver lying flat at far right and restrained dried burgundy table stains. REMOVE ALL letters, logos, title, subtitle, buttons, menu boxes, decorative UI frames and any readable text from the entire image. Fill those areas naturally with the existing background and uninterrupted green felt. Keep the middle and lower-middle table large and empty for live game UI, and the central upper room dark for live titles. This must be the actual pixel-art background asset with NO interface baked in. No characters or new props."
+  },
+  {
+    "key": "revolver",
+    "alpha": true,
+    "prompt": "Use the supplied image only as a STYLE REFERENCE. Create one isolated worn antique revolver prop in matching crisp 2D pixel art, lying horizontally with barrel pointing left and wooden grip pointing down-right, side view. Center it on a genuinely transparent alpha background, with generous clear margin around the complete silhouette. No hands, no person, no aiming, no firing, no bullets outside, no shadows or scenery, no words or UI. Muted dark gunmetal, worn brown wood grip, subtle warm amber edge light. This is a static game UI prop cutout, no functional mechanical diagram."
+  },
+  {
+    "key": "cylinder",
+    "alpha": true,
+    "prompt": "Use the supplied casino art only as a STYLE REFERENCE. Create ONE standalone flat front-facing circular aged gunmetal/brass game-wheel medallion for a 2D fictional roulette game. Exactly NINE evenly spaced round recessed dark slots around one central axle disk. All slots empty and identical, no bullets and no numbering or other text. Crisp restrained pixel-art texture, dark metallic gray with worn brass outer rim, simple readable circular symmetry, no perspective tilt. Full circle fits with clear transparent margin, genuinely transparent alpha outside. No gun body, hands, UI panels, title, background or external shadow. Functional game-wheel sprite asset in the same 2D pixel-art style, not a realistic photograph."
+  }
+]
+
+Wheel correction:
+Edit this circular pixel-art game wheel into a BLANK wheel plate used behind interactive UI buttons. Preserve its exact flat circular silhouette, transparent background, outer worn brass rim, dark gunmetal texture and small central axle. REMOVE EVERY circular dark slot/recess from its face and remove the internal radial spokes; replace all of that with one continuous flat aged gunmetal disk surface. The only circles remaining are the outside rim and the small center axle. No other holes, slots, bullets, numbers, symbols or text anywhere. Empty plate, flat face, no perspective tilt, crisp matching pixel art. The nine actual selectable circles will be drawn by game code later; do not draw any holes at all in this asset.
+
+Blank number card:
+Edit this vertical pixel-art card into ONE BLANK reusable NUMBER-CARD FACE asset. Preserve its exact rectangular silhouette, transparent alpha outside, warm ivory parchment, worn double brass border, burgundy dried blood flecks at corners, and crisp pixel art. REMOVE the entire arrows/crown emblem, all decorative stars from the central interior, the black title nameplate, ALL Korean text, and the effect description. Fill the entire interior with uninterrupted softly aged ivory parchment, leaving a very large clean center where game code will print a number. No words, numbers, labels, symbols, logos, inner plaques, backdrop or external shadows. Only the thin decorative outer border and restrained dried blood edge stains remain. One fully contained 2:3 portrait card, flat front view, genuine transparency outside its silhouette, opaque paper inside.
