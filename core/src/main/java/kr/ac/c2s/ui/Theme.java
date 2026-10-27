@@ -11,18 +11,21 @@ import com.badlogic.gdx.utils.Disposable;
 public final class Theme implements Disposable {
     public static final Color GOLD=Color.valueOf("e6b663"), CREAM=Color.valueOf("f3dfbd"), RED=Color.valueOf("e66c61"), MINT=Color.valueOf("8bceb0");
     public final Skin skin=new Skin();
-    private final FreeTypeFontGenerator generator;
+    private final FreeTypeFontGenerator generator,boldGenerator;
     public Theme() {
-        generator=new FreeTypeFontGenerator(Gdx.files.internal("fonts/NanumGothic-Regular.ttf"));
+        generator=new FreeTypeFontGenerator(Gdx.files.internal("fonts/NanumMyeongjo-Regular.ttf"));
+        boldGenerator=new FreeTypeFontGenerator(Gdx.files.internal("fonts/NanumMyeongjo-Bold.ttf"));
         for(String spec:new String[]{"tiny:16","small:19","body:26","default:23","title:34","large:50","hero:74"}) {
             String[] a=spec.split(":");FreeTypeFontGenerator.FreeTypeFontParameter p=new FreeTypeFontGenerator.FreeTypeFontParameter();
-            p.size=Integer.parseInt(a[1]);p.incremental=true;p.characters=FreeTypeFontGenerator.DEFAULT_CHARS+"♥♡◆·→←…✓";
+            p.size=Integer.parseInt(a[1]);p.incremental=true;p.characters=FreeTypeFontGenerator.DEFAULT_CHARS+"♥♡◆·→←…";
             p.minFilter=Texture.TextureFilter.Linear;p.magFilter=Texture.TextureFilter.Linear;
             if(a[0].equals("body")){p.renderCount=3;p.spaceY=6;}
             p.color=Color.WHITE;p.borderWidth=0;p.shadowOffsetX=0;p.shadowOffsetY=0;
-            BitmapFont font=generator.generateFont(p);font.setUseIntegerPositions(false);skin.add(a[0],font);
+            if(!a[0].equals("body"))p.renderCount=2;
+            BitmapFont font=(a[0].equals("title")||a[0].equals("large")||a[0].equals("hero")||a[0].equals("default")?boldGenerator:generator).generateFont(p);font.setUseIntegerPositions(false);skin.add(a[0],font);
             skin.add(a[0],new Label.LabelStyle(font,CREAM));
         }
+        skin.add("resultRecord",box("resultRecord",Color.valueOf("451422f5"),GOLD,5),Drawable.class);
         Drawable panel=box("panel",Color.valueOf("17120fe8"),GOLD,2);
         Drawable up=box("up",Color.valueOf("2c1d13f5"),Color.valueOf("a87a37"),2);
         Drawable over=box("over",Color.valueOf("4e321cf8"),GOLD,3);
@@ -45,12 +48,12 @@ public final class Theme implements Disposable {
     }
     private Drawable box(String key,Color fill,Color edge,int width) {
         Pixmap p=new Pixmap(16,16,Pixmap.Format.RGBA8888);p.setColor(edge);p.fill();p.setColor(fill);p.fillRectangle(width,width,16-width*2,16-width*2);
-        Texture t=new Texture(p);p.dispose();skin.add(key+"Texture",t);return new NinePatchDrawable(new NinePatch(t,4,4,4,4));
+        Texture t=new Texture(p);p.dispose();skin.add(key+"Texture",t);return new NinePatchDrawable(new NinePatch(t,Math.max(4,width+1),Math.max(4,width+1),Math.max(4,width+1),Math.max(4,width+1)));
     }
     private Drawable circle(String key,Color fill,Color edge) {
         Pixmap p=new Pixmap(80,80,Pixmap.Format.RGBA8888);p.setColor(0,0,0,0);p.fill();p.setColor(edge);p.fillCircle(40,40,39);p.setColor(fill);p.fillCircle(40,40,35);
         Texture t=new Texture(p);p.dispose();skin.add(key+"Texture",t);return new TextureRegionDrawable(new TextureRegion(t));
     }
     public Drawable panel() { return skin.get("panelTexture",Texture.class)==null?null:new NinePatchDrawable(new NinePatch(skin.get("panelTexture",Texture.class),4,4,4,4)); }
-    @Override public void dispose() { skin.dispose();generator.dispose(); }
+    @Override public void dispose() { skin.dispose();generator.dispose();boldGenerator.dispose(); }
 }
