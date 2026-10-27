@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Disposable;
 
 /** Code-drawn functional parts: deep bore, selection ring and distinct cartridges. */
 public final class CylinderArt implements Disposable {
-    public final Texture bore,ring,live,blank;
+    public final Texture bore,ring,live,blank,plate,cap;
     public CylinderArt(){
         Pixmap p=new Pixmap(160,160,Pixmap.Format.RGBA8888);
         for(int y=0;y<160;y++)for(int x=0;x<160;x++){
@@ -20,7 +20,19 @@ public final class CylinderArt implements Disposable {
             float r=(float)Math.hypot(x-89.5,y-89.5)/88;
             if(r<1&&r>.90f)p.drawPixel(x,y,Color.rgba8888(1,.73f,.30f,Math.min(1,Math.min((1-r)*60,(r-.90f)*60))));
         }
-        ring=texture(p);live=cartridge(true);blank=cartridge(false);
+        ring=texture(p);live=cartridge(true);blank=cartridge(false);plate=disc(false);cap=disc(true);
+    }
+    private Texture disc(boolean cartridgeBack){
+        int size=cartridgeBack?160:640;Pixmap p=new Pixmap(size,size,Pixmap.Format.RGBA8888);
+        for(int y=0;y<size;y++)for(int x=0;x<size;x++){
+            float dx=(x-size/2f)/(size/2f),dy=(y-size/2f)/(size/2f),r=(float)Math.hypot(dx,dy);if(r>1)continue;
+            float noise=((x*37+y*71)%29)/600f,light=.08f*(1-dy)+noise;
+            boolean gold=cartridgeBack||r>.92f||r<.15f;
+            float v=gold?.45f+light:.20f+light;
+            if(r>.97f||cartridgeBack&&r>.86f||r<.055f)v*=.45f;
+            p.drawPixel(x,y,Color.rgba8888(gold?v:v*.85f,gold?v*.74f:v*.92f,gold?v*.32f:v,1));
+        }
+        return texture(p);
     }
     private Texture cartridge(boolean liveRound){
         Pixmap p=new Pixmap(72,176,Pixmap.Format.RGBA8888);
@@ -42,5 +54,5 @@ public final class CylinderArt implements Disposable {
         return texture(p);
     }
     private Texture texture(Pixmap p){Texture t=new Texture(p);p.dispose();t.setFilter(Texture.TextureFilter.Linear,Texture.TextureFilter.Linear);return t;}
-    @Override public void dispose(){bore.dispose();ring.dispose();live.dispose();blank.dispose();}
+    @Override public void dispose(){bore.dispose();ring.dispose();live.dispose();blank.dispose();plate.dispose();cap.dispose();}
 }
