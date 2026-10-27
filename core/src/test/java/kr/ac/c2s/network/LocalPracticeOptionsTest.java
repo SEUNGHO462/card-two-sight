@@ -12,7 +12,7 @@ class LocalPracticeOptionsTest {
             gateway.configure(PracticeDifficulty.HARD,"female_silver");
             Snapshot s=await(events);assertFalse(s.me().ready);assertEquals("female_silver",s.opponent().characterId);assertTrue(s.message.contains("HARD"));
             gateway.send(Command.of(Action.READY));await(events);gateway.send(Command.of(Action.START));
-            s=await(events);assertEquals(Phase.TILE_SELECT,s.phase);assertEquals("female_silver",s.opponent().characterId);
+            s=await(events);assertEquals(Phase.LOADOUT_SELECT,s.phase);assertEquals("female_silver",s.opponent().characterId);
         }
     }
     private Snapshot await(BlockingQueue<Event> events)throws Exception{Event e=events.poll(3,TimeUnit.SECONDS);assertNotNull(e);assertEquals("STATE",e.type);return e.state;}

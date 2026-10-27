@@ -57,6 +57,7 @@ public final class C2SGame extends Game {
         if(next.phase==Phase.FINAL){records.record(next);if(!records.lastError.isEmpty())toast(records.lastError);}
         BaseScreen target;
         if(next.phase==Phase.LOBBY){if(getScreen() instanceof LobbyScreen s){s.accept(next);return;}target=new LobbyScreen(this,next);}
+        else if(next.phase==Phase.LOADOUT_SELECT){if(getScreen() instanceof CardSelectScreen s){s.accept(next);return;}target=new CardSelectScreen(this,next);}
         else if(next.phase==Phase.ROULETTE_SELECT || next.phase==Phase.ROULETTE_RESULT){if(getScreen() instanceof RouletteScreen s){s.accept(next);return;}target=new RouletteScreen(this,next);}
         else if(next.phase==Phase.FINAL){if(getScreen() instanceof FinalResultScreen s){s.accept(next);return;}target=new FinalResultScreen(this,next);}
         else{if(getScreen() instanceof GameScreen s){s.accept(next);return;}target=new GameScreen(this,next);}

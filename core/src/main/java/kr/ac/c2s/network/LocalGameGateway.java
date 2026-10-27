@@ -41,8 +41,8 @@ public final class LocalGameGateway implements GameGateway {
             try {
                 if(c.action==Action.CREATE) { emit();return; }
                 if(c.action==Action.READY && engine==null) ready=!ready;
-                else if(c.action==Action.START && engine==null) { if(!ready)throw new IllegalArgumentException("준비하기를 먼저 눌러주세요.");engine=new GameEngine(identities[0],identities[1],random); }
-                else if(c.action==Action.REMATCH && engine!=null && engine.phase()==Phase.FINAL) engine=new GameEngine(identities[0],identities[1],random);
+                else if(c.action==Action.START && engine==null) { if(!ready)throw new IllegalArgumentException("준비하기를 먼저 눌러주세요.");engine=new GameEngine(identities[0],identities[1],random,true); }
+                else if(c.action==Action.REMATCH && engine!=null && engine.phase()==Phase.FINAL) engine=new GameEngine(identities[0],identities[1],random,true);
                 else if(engine!=null) engine.apply(0,c);
                 emit();executor.schedule(this::bot,650,TimeUnit.MILLISECONDS);
             } catch(IllegalArgumentException e) { dispatch.accept(()->{if(!closed)listener.accept(Event.error(e.getMessage()));}); }
@@ -53,6 +53,9 @@ public final class LocalGameGateway implements GameGateway {
         Snapshot b=engine.snapshot(1);
         try {
             switch(b.phase) {
+                case LOADOUT_SELECT -> {
+                    if(!b.me().loadoutReady){List<Card> deck=new ArrayList<>(Arrays.asList(Card.values()));Collections.shuffle(deck,random);engine.apply(1,Command.loadout(deck.subList(0,2)));}
+                }
                 case TILE_SELECT -> { if(!b.me().selected) engine.apply(1,Command.number(Action.TILE,PracticeStrategy.tile(b,difficulty,random))); }
                 case SPECIAL_SELECT -> {
                     if(!b.me().specialReady) {

@@ -26,6 +26,7 @@ public final class SmokeTour {
         Snapshot s=app.state;if(s==null)return;
         switch(s.phase){
             case LOBBY->{capture("04-lobby");click(s.me().ready?"game-start":"ready");}
+            case LOADOUT_SELECT->{capture("04-card-selection");if(!s.me().loadoutReady){click("loadout-REVERSE");click("loadout-SCOUT");capture("04-card-selection-two");click("loadout-confirm");}}
             case TILE_SELECT->{capture("05-game");if(!s.me().selected){int n=s.hand.get(s.hand.size()-1);click("tile-"+n);click("tile-confirm");}}
             case SPECIAL_SELECT->{capture("06-special");if(!s.me().specialReady)click("special-skip");}
             case ROUND_RESULT->{capture("07-round-result");if(!s.me().acknowledged)click("round-next");}
