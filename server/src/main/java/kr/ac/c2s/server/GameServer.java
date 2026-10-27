@@ -106,7 +106,7 @@ public final class GameServer implements AutoCloseable {
             } else engine.apply(p,c);
             broadcast();
         }
-        void begin() { engine=new GameEngine(seats[0].identity,seats[1].identity,new SecureRandom()); Arrays.fill(rematch,false); }
+        void begin() { engine=new GameEngine(seats[0].identity,seats[1].identity,new SecureRandom(),true); Arrays.fill(rematch,false); }
         synchronized void broadcast() {
             for(int viewer=0;viewer<2;viewer++) if(seats[viewer]!=null) {
                 Snapshot state;

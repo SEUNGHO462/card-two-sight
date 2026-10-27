@@ -24,7 +24,14 @@ class ServerIntegrationTest {
             intruder.send(Command.enter(Action.JOIN,"세번째","male_punk","DRAGON"));assertEquals("ERROR",intruder.await(e->"ERROR".equals(e.type)).type);
             a.send(Command.of(Action.READY));b.send(Command.of(Action.READY));
             a.await(e->e.state!=null&&e.state.players[1]!=null&&e.state.players[0].ready&&e.state.players[1].ready);
-            a.send(Command.of(Action.START));a.phase(Phase.TILE_SELECT);b.phase(Phase.TILE_SELECT);
+            a.send(Command.of(Action.START));a.phase(Phase.LOADOUT_SELECT);b.phase(Phase.LOADOUT_SELECT);
+            a.send(Command.loadout(java.util.List.of(Card.REVERSE,Card.SCOUT)));
+            Snapshot privateChoice=a.await(e->e.state!=null&&e.state.me().loadoutReady).state;
+            assertEquals(java.util.List.of(Card.REVERSE,Card.SCOUT),privateChoice.cards);
+            Snapshot other=b.await(e->e.state!=null&&e.state.opponent().loadoutReady).state;
+            assertTrue(other.cards.isEmpty());assertEquals(2,other.opponent().specialCount);
+            b.send(Command.loadout(java.util.List.of(Card.DISGUISE,Card.PREDICT)));
+            a.phase(Phase.TILE_SELECT);b.phase(Phase.TILE_SELECT);
             for(int n=1;n<=9;n++){
                 a.send(Command.number(Action.TILE,n));b.send(Command.number(Action.TILE,n));a.phase(Phase.SPECIAL_SELECT);b.phase(Phase.SPECIAL_SELECT);
                 a.send(Command.special(null,0));b.send(Command.special(null,0));a.phase(Phase.ROUND_RESULT);b.phase(Phase.ROUND_RESULT);
@@ -34,7 +41,7 @@ class ServerIntegrationTest {
                 if(n<9){a.phase(Phase.TILE_SELECT);b.phase(Phase.TILE_SELECT);}
             }
             Snapshot sa=a.phase(Phase.FINAL),sb=b.phase(Phase.FINAL);assertEquals(sa.matchId,sb.matchId);assertEquals(9,sa.draws);assertEquals(-1,sa.winner);
-            a.send(Command.of(Action.REMATCH));b.send(Command.of(Action.REMATCH));Snapshot restarted=a.phase(Phase.TILE_SELECT);b.phase(Phase.TILE_SELECT);assertNotEquals(sa.matchId,restarted.matchId);assertEquals(9,restarted.hand.size());
+            a.send(Command.of(Action.REMATCH));b.send(Command.of(Action.REMATCH));Snapshot restarted=a.phase(Phase.LOADOUT_SELECT);b.phase(Phase.LOADOUT_SELECT);assertTrue(restarted.cards.isEmpty());assertNotEquals(sa.matchId,restarted.matchId);assertEquals(9,restarted.hand.size());
             b.close();Snapshot forfeited=a.phase(Phase.FINAL);assertEquals(0,forfeited.winner);assertEquals("상대 연결 종료",forfeited.reason);
         }}
     }
