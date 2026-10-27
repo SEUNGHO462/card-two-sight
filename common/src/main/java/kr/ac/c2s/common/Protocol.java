@@ -12,17 +12,18 @@ public final class Protocol {
     public static final int DEFAULT_PORT = 54555;
     public static final String[] CHARACTER_IDS = {"female_leather", "female_vest", "male_veteran", "female_silver", "male_punk", "male_handsome"};
     public static final String[] CHARACTER_NAMES = {"레나", "서린", "태식", "마담 류", "준", "도윤"};
-    public enum Phase { LOBBY, TILE_SELECT, SPECIAL_SELECT, ROUND_RESULT, ROULETTE_SELECT, ROULETTE_RESULT, FINAL }
+    public enum Phase { LOBBY, LOADOUT_SELECT, TILE_SELECT, SPECIAL_SELECT, ROUND_RESULT, ROULETTE_SELECT, ROULETTE_RESULT, FINAL }
     public enum Card {
         REVERSE("역전"), SCOUT("정찰"), DISGUISE("위장"), PREDICT("예측");
         public final String label;
         Card(String label) { this.label = label; }
     }
-    public enum Action { CREATE, JOIN, READY, START, TILE, SPECIAL, NEXT, HINT, CHAMBER, REMATCH, LEAVE }
+    public enum Action { CREATE, JOIN, READY, START, LOADOUT, TILE, SPECIAL, NEXT, HINT, CHAMBER, REMATCH, LEAVE }
     public static final class Command {
         public Action action;
         public String name, characterId, password, hint;
         public Card card;
+        public List<Card> loadout;
         public int number;
         public static Command of(Action a) { Command c = new Command(); c.action = a; return c; }
         public static Command number(Action a, int n) { Command c = of(a); c.number = n; return c; }
@@ -30,11 +31,13 @@ public final class Protocol {
             Command c = of(a); c.name = name; c.characterId = id; c.password = password; return c;
         }
         public static Command special(Card card, int predicted) { Command c = number(Action.SPECIAL, predicted); c.card = card; return c; }
+        public static Command loadout(List<Card> cards) { Command c=of(Action.LOADOUT);c.loadout=cards==null?null:new ArrayList<>(cards);return c; }
         public static Command hint(String hint, int chamber) { Command c = number(Action.HINT, chamber); c.hint = hint; return c; }
     }
     public static final class Player {
         public String name, characterId;
         public int life = 3, wins, remaining = 9, specialCount = 2, chips = 12, danger;
+        public boolean loadoutReady;
         public boolean ready, selected, specialReady, acknowledged, chamberReady, rematch;
         public Player() {}
         public Player(String name, String characterId) { this.name = name; this.characterId = characterId; }

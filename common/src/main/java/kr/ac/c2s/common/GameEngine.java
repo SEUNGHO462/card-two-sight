@@ -15,14 +15,16 @@ public final class GameEngine {
     private final int[] tiles = new int[2], predictions = new int[2], chambers = {-1, -1};
     private final Card[] active = new Card[2];
     private final boolean[] specialReady = new boolean[2], ack = new boolean[2], hit = new boolean[2];
+    private final boolean[] loadoutReady = new boolean[2];
     private final String[] parity = {"?", "?"};
     private Phase phase = Phase.TILE_SELECT;
     private final String matchId = UUID.randomUUID().toString();
     private int round = 1, draws, winner = -2, roundWinner = -2;
     private String reason = "";
 
+    public GameEngine(Player first, Player second, Random random) { this(first,second,random,false); }
     @SuppressWarnings("unchecked")
-    public GameEngine(Player first, Player second, Random random) {
+    public GameEngine(Player first, Player second, Random random, boolean chooseCards) {
         this.random = Objects.requireNonNull(random);
         players = new Player[]{new Player(first.name, first.characterId), new Player(second.name, second.characterId)};
         cards = new List[]{new ArrayList<Card>(), new ArrayList<Card>()};
@@ -32,8 +34,9 @@ public final class GameEngine {
         known = new Map[]{new HashMap<Integer,Boolean>(), new HashMap<Integer,Boolean>()};
         for (int p = 0; p < 2; p++) {
             List<Card> deck = new ArrayList<>(Arrays.asList(Card.values())); Collections.shuffle(deck, random);
-            cards[p].addAll(deck.subList(0, 2));
+            if(!chooseCards){cards[p].addAll(deck.subList(0, 2));loadoutReady[p]=true;}
         }
+        if(chooseCards)phase=Phase.LOADOUT_SELECT;
     }
     public synchronized Phase phase() { return phase; }
     public synchronized String matchId() { return matchId; }
@@ -43,6 +46,7 @@ public final class GameEngine {
         require(p == 0 || p == 1, "플레이어 정보가 올바르지 않습니다.");
         require(c != null && c.action != null, "잘못된 명령입니다.");
         switch (c.action) {
+            case LOADOUT -> selectLoadout(p,c.loadout);
             case TILE -> selectTile(p, c.number);
             case SPECIAL -> useCard(p, c.card, c.number);
             case NEXT -> next(p);
@@ -50,6 +54,14 @@ public final class GameEngine {
             case CHAMBER -> selectChamber(p, c.number);
             default -> throw new IllegalArgumentException("게임 명령이 아닙니다.");
         }
+    }
+    private void selectLoadout(int p,List<Card> chosen){
+        phase(Phase.LOADOUT_SELECT);
+        require(!loadoutReady[p],"이미 특수카드를 확정했습니다.");
+        require(chosen!=null&&chosen.size()==2,"특수카드를 정확히 두 장 선택하세요.");
+        require(chosen.stream().allMatch(Objects::nonNull)&&new HashSet<>(chosen).size()==2,"서로 다른 카드 두 장을 선택하세요.");
+        cards[p].addAll(chosen);loadoutReady[p]=true;
+        if(loadoutReady[0]&&loadoutReady[1])phase=Phase.TILE_SELECT;
     }
     private void selectTile(int p, int tile) {
         phase(Phase.TILE_SELECT);
@@ -175,7 +187,7 @@ public final class GameEngine {
         s.dangerDelta=dangerDeltas[viewer];s.draws=draws; s.winner=winner; s.reason=reason; s.roundWinner=roundWinner;
         for(int p=0;p<2;p++) {
             Player v=players[p].copy(); v.remaining=hand(p).size(); v.specialCount=cards[p].size();
-            v.selected=tiles[p]!=0; v.specialReady=specialReady[p]; v.acknowledged=ack[p]; v.chamberReady=chambers[p]>=0;
+            v.loadoutReady=loadoutReady[p]; v.selected=tiles[p]!=0; v.specialReady=specialReady[p]; v.acknowledged=ack[p]; v.chamberReady=chambers[p]>=0;
             s.players[p]=v;
         }
         s.hand=hand(viewer); s.cards=new ArrayList<>(cards[viewer]); s.ownTile=tiles[viewer];
