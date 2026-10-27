@@ -1,4 +1,4 @@
-# 연결 규격 v1
+# 연결 규격 v2 — 시작 카드 선택 추가
 
 Protocol.java가 공통 기준입니다. TCP UTF-8 한 줄 JSON, 메시지 최대 16,384자입니다. 플레이어 번호는 접속 세션으로 정하며 클라이언트가 남의 번호를 지정할 수 없습니다.
 
@@ -9,6 +9,7 @@ Protocol.java가 공통 기준입니다. TCP UTF-8 한 줄 JSON, 메시지 최�
 | CREATE / JOIN | name, characterId, password | 방 외부 |
 | READY | 없음 | 대기방, 준비 토글 |
 | START | 없음 | 두 사람 준비 완료 후 방장만 |
+| LOADOUT | loadout: 서로 다른 Card 2개 배열 | LOADOUT_SELECT, 1회 확정 |
 | TILE | number 1~9 | TILE_SELECT |
 | SPECIAL | card 또는 null, 예측이면 number 1~9 | SPECIAL_SELECT |
 | NEXT | 없음 | ROUND_RESULT / ROULETTE_RESULT |
@@ -29,6 +30,7 @@ card는 REVERSE / SCOUT / DISGUISE / PREDICT, hint는 RANGE / COMPARE / ADJACENT
 ## 개인별 Snapshot
 
 - you: 자신의 번호 0/1, players: 이름·캐릭터·생명·승수·남은 장수·선택/확정 상태.
+- players[].loadoutReady: 시작 카드 선택 확정 여부. 상대는 확정 여부와 장수만 확인합니다.
 - hand / cards / ownTile / ownChamber: 본인 정보만.
 - phase / round / roundWinner / winner / draws / reason: 진행과 판정.
 - opponentParity: 판정 후 공개할 홀짝. 위장 효과가 반영된 값.
@@ -40,5 +42,5 @@ card는 REVERSE / SCOUT / DISGUISE / PREDICT, hint는 RANGE / COMPARE / ADJACENT
 
 ## 화면 연결
 
-C2SGame.accept(Snapshot)가 phase를 보고 LobbyScreen / GameScreen / RouletteScreen / FinalResultScreen으로 전환합니다.
+C2SGame.accept(Snapshot)가 phase를 보고 LobbyScreen / CardSelectScreen / GameScreen / RouletteScreen / FinalResultScreen으로 전환합니다.
 각 화면의 accept는 서버 응답을 기준으로 다시 그립니다. 버튼에 이름을 부여해 SmokeTour에서 실제 입력 경로를 검증합니다.
