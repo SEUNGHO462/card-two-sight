@@ -26,3 +26,15 @@ tools/make_audio.py로 생성한 짧은 합성 WAV 5개: 클릭·공탄·실탄�
 ## 사용 전 확인
 
 AI 이미지의 세부 모양과 원근은 개별 자산마다 조금 다릅니다. 공개 출시 단계에서는 팀이 최종 미술 검수와 사용권 검토를 진행하세요. 이 프로젝트는 기존 구룡투의 이미지·로고·상용 음원을 포함하지 않습니다.
+
+## 2026-10-27 메뉴·카드·글꼴 갱신
+
+- assets/ui/menu: 금색 고전 로고, 버건디 장식 버튼, 총탄 흔적, 투명 핏방울 비산 장식. 내장 image_gen.imagegen으로 생성했습니다.
+- assets/cards/specials/*-droplets-v2.png 및 cards/blank-droplets-v2.png: 기존 문양과 내용을 유지하고 핏방울 표현을 수정했습니다. GameAssets가 기존 경로를 새 버전으로 연결합니다.
+- 특수카드에는 작은 blood-splatter-v1.png 장식을 두 군데 겹쳐 표시합니다. 카드 이름과 설명을 가리지 않도록 가장자리에 배치했습니다.
+- 게임의 실시간 글자는 NanumMyeongjo Regular / Bold를 사용합니다. SIL OFL 고지는 assets/fonts/OFL-NanumMyeongjo.txt에 포함했습니다.
+- 메뉴 클릭에는 기존 자체 제작 trigger-shot-v2.wav와 클릭 위치의 총탄 흔적을 사용하며, 약 0.32초 후 선택한 화면으로 이동합니다.
+- 생성 프롬프트와 파일 대응표: docs/MENU_CARD_ART_PROMPTS.json.
+- 결과 화면 누적 기록: 큰 금색 명조 글자, 버건디 바탕, 두께 5의 금색 테두리.
+
+실제 렌더링 미리보기로 메뉴·설정·캐릭터·카드·탄창·누적 기록을 확인했습니다. 오디오 호출은 확인했으나 스피커 출력은 별도로 청취하지 않았습니다.

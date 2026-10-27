@@ -1,4 +1,4 @@
-# 연결 규격 v2 — 시작 카드 선택 추가
+# 연결 규격 v3 — 시작 카드 선택 및 직접 장전
 
 Protocol.java가 공통 기준입니다. TCP UTF-8 한 줄 JSON, 메시지 최대 16,384자입니다. 플레이어 번호는 접속 세션으로 정하며 클라이언트가 남의 번호를 지정할 수 없습니다.
 
@@ -13,12 +13,13 @@ Protocol.java가 공통 기준입니다. TCP UTF-8 한 줄 JSON, 메시지 최�
 | TILE | number 1~9 | TILE_SELECT |
 | SPECIAL | card 또는 null, 예측이면 number 1~9 | SPECIAL_SELECT |
 | NEXT | 없음 | ROUND_RESULT / ROULETTE_RESULT |
+| LOAD_AMMO | number 0~8, 비어 있는 본인 탄실 | AMMO_LOAD, 추가 실탄이 있을 때만 |
 | HINT | hint, number 0~8 | ROULETTE_SELECT |
-| CHAMBER | number 0~8 | ROULETTE_SELECT, 격발 확정 시 |
+| CHAMBER | number 0~8 | ROULETTE_SELECT, 회전 후 격발 버튼을 누를 때 |
 | REMATCH | 없음 | FINAL, 양쪽 요청 필요 |
 | LEAVE | 없음 | 연결 종료 |
 
-card는 REVERSE / SCOUT / DISGUISE / PREDICT, hint는 RANGE / COMPARE / ADJACENT / INSPECT입니다.
+card는 REVERSE / SCOUT / DISGUISE / PREDICT, hint는 RANGE(4칩) / INSPECT(8칩)입니다. 제거된 COMPARE / ADJACENT 요청은 거부하고 칩을 차감하지 않습니다.
 화면의 탄실 번호는 1~9이고 통신 값은 0~8입니다.
 
 ## 출력 Event
@@ -35,6 +36,9 @@ card는 REVERSE / SCOUT / DISGUISE / PREDICT, hint는 RANGE / COMPARE / ADJACENT
 - phase / round / roundWinner / winner / draws / reason: 진행과 판정.
 - opponentParity: 판정 후 공개할 홀짝. 위장 효과가 반영된 값.
 - history / privateInfo / boughtHints / knownChambers: 해당 사용자용 정보.
+- pendingAmmo: 본인이 추가 장전할 발 수. ammoChoice: 본인이 선택해 장전한 번호(0~8), 없으면 -1.
+- loadedChambers: AMMO_LOAD 단계에서 본인의 실제 기존 실탄 위치만. 회전 후 실제 배치는 전송하지 않습니다.
+- hintHistory: 본인 구매 내역을 R번호와 함께 경기 동안 유지. 다른 사용자에게 전송하지 않습니다.
 - hit: 룰렛 결과의 두 사람 피격 여부. 준비 중에는 실제 배치 정보가 아닙니다.
 - winner와 roundWinner: 0/1 승자, -1 무승부, -2 미판정.
 
