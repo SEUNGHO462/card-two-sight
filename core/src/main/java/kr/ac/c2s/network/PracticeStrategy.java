@@ -25,8 +25,8 @@ public final class PracticeStrategy {
     }
     public static int chamber(Snapshot s,Random random){
         List<Integer> safe=new ArrayList<>(),unknown=new ArrayList<>();
-        for(int i=0;i<9;i++){Boolean hit=s.knownChambers.get(i);if(Boolean.FALSE.equals(hit))safe.add(i);else if(hit==null)unknown.add(i);}
+        for(int i=0;i<kr.ac.c2s.common.Protocol.CHAMBERS;i++){Boolean hit=s.knownChambers.get(i);if(Boolean.FALSE.equals(hit))safe.add(i);else if(hit==null)unknown.add(i);}
         List<Integer> options=!safe.isEmpty()?safe:unknown;
-        return options.isEmpty()?random.nextInt(9):options.get(random.nextInt(options.size()));
+        return options.isEmpty()?random.nextInt(kr.ac.c2s.common.Protocol.CHAMBERS):options.get(random.nextInt(options.size()));
     }
 }

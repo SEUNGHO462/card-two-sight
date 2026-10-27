@@ -64,9 +64,13 @@ public final class LocalGameGateway implements GameGateway {
                     }
                 }
                 case ROUND_RESULT, ROULETTE_RESULT -> { if(!b.me().acknowledged) engine.apply(1,Command.of(Action.NEXT)); }
+                case AMMO_LOAD -> {
+                    if(b.pendingAmmo>0){List<Integer> empty=new ArrayList<>();for(int i=0;i<Protocol.CHAMBERS;i++)if(!b.loadedChambers.contains(i))empty.add(i);
+                        engine.apply(1,Command.number(Action.LOAD_AMMO,empty.get(random.nextInt(empty.size()))));}
+                }
                 case ROULETTE_SELECT -> { if(!b.me().chamberReady){
                     int chosen=PracticeStrategy.chamber(b,random);
-                    if(difficulty==PracticeDifficulty.HARD&&b.me().danger>0&&b.me().chips>=2&&!b.boughtHints.contains("INSPECT")){
+                    if(difficulty==PracticeDifficulty.HARD&&(b.me().danger>=3||b.me().life==1&&b.me().danger>0)&&b.me().chips>=Protocol.hintCost("INSPECT")&&!b.boughtHints.contains("INSPECT")){
                         engine.apply(1,Command.hint("INSPECT",chosen));b=engine.snapshot(1);chosen=PracticeStrategy.chamber(b,random);
                     }
                     engine.apply(1,Command.number(Action.CHAMBER,chosen));
