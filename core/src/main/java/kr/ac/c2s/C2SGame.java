@@ -27,8 +27,9 @@ public final class C2SGame extends Game {
         assets=new GameAssets();theme=new Theme();records=new RecordStore();
         if(!Arrays.asList(CHARACTER_IDS).contains(records.character))records.character="male_handsome";
         Pixmap p=new Pixmap(1,1,Pixmap.Format.RGBA8888);p.setColor(Color.WHITE);p.fill();white=new Texture(p);p.dispose();
-        go(Arrays.asList(args).contains("--ui-preview") || Arrays.asList(args).contains("--smoke") || Arrays.asList(args).contains("--shot-preview") || Arrays.asList(args).contains("--cylinder-preview") ? new MainMenuScreen(this) : new IntroScreen(this));
-        if(Arrays.asList(args).contains("--ui-preview"))new LobbyPreviewTour(this).start();
+        go(Arrays.asList(args).contains("--menu-preview") || Arrays.asList(args).contains("--ui-preview") || Arrays.asList(args).contains("--smoke") || Arrays.asList(args).contains("--shot-preview") || Arrays.asList(args).contains("--cylinder-preview") ? new MainMenuScreen(this) : new IntroScreen(this));
+        if(Arrays.asList(args).contains("--menu-preview"))new MenuPreviewTour(this).start();
+        else if(Arrays.asList(args).contains("--ui-preview"))new LobbyPreviewTour(this).start();
         else if(Arrays.asList(args).contains("--intro-preview"))new IntroPreviewTour(this).start();
         else if(Arrays.asList(args).contains("--cylinder-preview"))new CylinderPreviewTour(this).start();
         else if(Arrays.asList(args).contains("--shot-preview"))new ShotPreviewTour(this).start();
@@ -58,7 +59,7 @@ public final class C2SGame extends Game {
         BaseScreen target;
         if(next.phase==Phase.LOBBY){if(getScreen() instanceof LobbyScreen s){s.accept(next);return;}target=new LobbyScreen(this,next);}
         else if(next.phase==Phase.LOADOUT_SELECT){if(getScreen() instanceof CardSelectScreen s){s.accept(next);return;}target=new CardSelectScreen(this,next);}
-        else if(next.phase==Phase.ROULETTE_SELECT || next.phase==Phase.ROULETTE_RESULT){if(getScreen() instanceof RouletteScreen s){s.accept(next);return;}target=new RouletteScreen(this,next);}
+        else if(next.phase==Phase.AMMO_LOAD || next.phase==Phase.ROULETTE_SELECT || next.phase==Phase.ROULETTE_RESULT){if(getScreen() instanceof RouletteScreen s){s.accept(next);return;}target=new RouletteScreen(this,next);}
         else if(next.phase==Phase.FINAL){if(getScreen() instanceof FinalResultScreen s){s.accept(next);return;}target=new FinalResultScreen(this,next);}
         else{if(getScreen() instanceof GameScreen s){s.accept(next);return;}target=new GameScreen(this,next);}
         go(target);

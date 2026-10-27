@@ -30,6 +30,8 @@ public final class SmokeTour {
             case TILE_SELECT->{capture("05-game");if(!s.me().selected){int n=s.hand.get(s.hand.size()-1);click("tile-"+n);click("tile-confirm");}}
             case SPECIAL_SELECT->{capture("06-special");if(!s.me().specialReady)click("special-skip");}
             case ROUND_RESULT->{capture("07-round-result");if(!s.me().acknowledged)click("round-next");}
+            case AMMO_LOAD->{RouletteScreen screen=(RouletteScreen)app.getScreen();capture("08-manual-load");if(screen.isAmmoPlacementReady()){
+                int empty=java.util.stream.IntStream.range(0,9).filter(i->!s.loadedChambers.contains(i)).findFirst().orElseThrow();click("chamber-"+empty);click("chamber-confirm");}}
             case ROULETTE_SELECT->{
                 RouletteScreen screen=(RouletteScreen)app.getScreen();
                 if(s.me().chamberReady)capture("09-waiting");
