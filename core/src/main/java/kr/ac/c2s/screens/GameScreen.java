@@ -23,6 +23,7 @@ public final class GameScreen extends BaseScreen {
         panel(1258,628,300,120);gold("상대 · "+s.opponent().name,1270,700,275,32,"default");heartLabel(s.opponent().life,1270,650,270);
         label("남은 타일 "+s.me().remaining+"장 · 칩 "+s.me().chips,42,585,300,32,"small",Align.center);
         label("남은 타일 "+s.opponent().remaining+"장 · 특수카드 "+s.opponent().specialCount+"장",1210,585,390,32,"small",Align.center);
+        gold("상대 보유 칩  "+s.opponent().chips,1210,548,390,32,"default").setName("opponent-chips");
         panel(43,175,280,380);gold("경기 기록",60,505,245,40,"default");scrollText(String.join("\n\n",s.history),63,192,240,302);
         button("테이블 나가기",1350,55,210,48,"small",app::confirmLeave);
     }
@@ -37,7 +38,7 @@ public final class GameScreen extends BaseScreen {
             label("내 타일",400,288,800,35,"small",Align.center);
             for(int n=1;n<=9;n++){int value=n;TextButton b=tile(String.valueOf(n),365+(n-1)*111,160,94,126,n%2==0,selected==n,()->{selected=value;build();});b.setDisabled(!s.hand.contains(n)||s.me().selected);b.setName("tile-"+n);}
             TextButton confirm=button(s.me().selected?"선택 완료 · 상대 대기":"선택 확정",590,65,420,66,"primary",()->app.send(Command.number(Action.TILE,selected)));confirm.setDisabled(selected==0||s.me().selected);confirm.setName("tile-confirm");
-            gold("특수카드 "+s.cards.size()+"장",1260,500,280,40,"default");int index=0;
+            gold("내 특수카드 "+s.cards.size()+"장",1260,500,280,40,"default");int index=0;
             for(Card c:s.cards){int i=index++;TextButton b=button(c.label,1280,420-i*74,230,56,"small",()->cardDialog(c));b.setName("view-"+c.name());}
         }else special();
     }
@@ -72,5 +73,12 @@ public final class GameScreen extends BaseScreen {
         TextButton next=button(s.me().acknowledged?"상대 확인 대기…":"룰렛으로 이동",580,70,440,65,"primary",()->app.send(Command.of(Action.NEXT)));next.setDisabled(s.me().acknowledged);next.setName("round-next");
     }
     public static String description(Card c){return switch(c){case REVERSE->"이번 라운드에는 낮은 숫자가 승리합니다. 양쪽 역전은 상쇄되며 1 대 9 예외는 유지합니다.";case SCOUT->"판정 후 상대 숫자가 1~4인지 5~9인지 본인에게만 알려줍니다.";case DISGUISE->"상대에게 공개할 내 홀짝 정보를 반대로 표시합니다. 실제 승패에는 영향이 없습니다.";case PREDICT->"정확한 상대 숫자를 맞히면 상대의 남은 타일 중 한 장을 본인만 확인합니다.";};}
-    private void cardDialog(Card c){Dialog d=new Dialog(c.label,app.theme.skin);d.getButtonTable().defaults().minWidth(180).minHeight(54).pad(8);Image img=new Image(app.assets.texture("cards/specials/"+c.name().toLowerCase()+".png"));d.getContentTable().add(img).size(260,390).pad(15).row();Label text=new Label(description(c),app.theme.skin,"small");text.setWrap(true);d.getContentTable().add(text).width(500).pad(15);d.button("닫기");d.show(stage);}
+    private void cardDialog(Card c){
+        Dialog d=titledDialog(c.label,540);
+        var art=new kr.ac.c2s.ui.CardArt(app,"cards/specials/"+c.name().toLowerCase(java.util.Locale.ROOT)+".png",0,0,220,330);
+        d.getContentTable().add(art).size(220,330).center().padBottom(18).row();
+        Label text=new Label(description(c),app.theme.skin,"body");text.setWrap(true);text.setAlignment(Align.left);
+        d.getContentTable().add(text).width(540).left().padBottom(8);
+        d.button("닫기");d.getButtonTable().getChildren().peek().setName("card-help-close");d.show(stage);
+    }
 }
