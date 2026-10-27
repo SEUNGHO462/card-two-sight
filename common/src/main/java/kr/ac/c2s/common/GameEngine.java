@@ -7,11 +7,11 @@ import static kr.ac.c2s.common.Protocol.*;
 public final class GameEngine {
     private final Random random;
     private final Player[] players;
-    private final boolean[][] used = new boolean[2][10], bullets = new boolean[2][9];
+    private final boolean[][] used = new boolean[2][10], bullets = new boolean[2][CHAMBERS];
     private final List<Card>[] cards;
-    private final List<String>[] history, info, hints;
+    private final List<String>[] history, info, hints, hintHistory;
     private final Map<Integer, Boolean>[] known;
-    private final int[] dangerDeltas = new int[2];
+    private final int[] dangerDeltas = new int[2], pendingAmmo=new int[2], ammoChoices={-1,-1};
     private final int[] tiles = new int[2], predictions = new int[2], chambers = {-1, -1};
     private final Card[] active = new Card[2];
     private final boolean[] specialReady = new boolean[2], ack = new boolean[2], hit = new boolean[2];
@@ -30,9 +30,11 @@ public final class GameEngine {
         cards = new List[]{new ArrayList<Card>(), new ArrayList<Card>()};
         history = new List[]{new ArrayList<String>(), new ArrayList<String>()};
         info = new List[]{new ArrayList<String>(), new ArrayList<String>()};
+        hintHistory = new List[]{new ArrayList<String>(),new ArrayList<String>()};
         hints = new List[]{new ArrayList<String>(), new ArrayList<String>()};
         known = new Map[]{new HashMap<Integer,Boolean>(), new HashMap<Integer,Boolean>()};
         for (int p = 0; p < 2; p++) {
+            bullets[p][1]=true;
             List<Card> deck = new ArrayList<>(Arrays.asList(Card.values())); Collections.shuffle(deck, random);
             if(!chooseCards){cards[p].addAll(deck.subList(0, 2));loadoutReady[p]=true;}
         }
@@ -50,6 +52,7 @@ public final class GameEngine {
             case TILE -> selectTile(p, c.number);
             case SPECIAL -> useCard(p, c.card, c.number);
             case NEXT -> next(p);
+            case LOAD_AMMO -> loadAmmo(p,c.number);
             case HINT -> buyHint(p, c.hint, c.number);
             case CHAMBER -> selectChamber(p, c.number);
             default -> throw new IllegalArgumentException("게임 명령이 아닙니다.");
@@ -95,8 +98,8 @@ public final class GameEngine {
         else {
             int beforeWinner=players[roundWinner].danger, beforeLoser=players[1-roundWinner].danger;
             players[roundWinner].wins++;
-            players[roundWinner].danger = Math.max(0, players[roundWinner].danger - 1);
-            players[1-roundWinner].danger = Math.min(9, players[1-roundWinner].danger + 1);
+            // Wins keep the accumulated ammunition count.
+            players[1-roundWinner].danger = Math.min(CHAMBERS, players[1-roundWinner].danger + 1);
             dangerDeltas[roundWinner]=players[roundWinner].danger-beforeWinner;
             dangerDeltas[1-roundWinner]=players[1-roundWinner].danger-beforeLoser;
         }
@@ -138,37 +141,45 @@ public final class GameEngine {
     }
     private void prepareRoulette() {
         for (int p=0;p<2;p++) {
-            Arrays.fill(bullets[p], false); List<Integer> order = new ArrayList<>();
-            for (int i=0;i<9;i++) order.add(i); Collections.shuffle(order, random);
-            for (int i=0;i<players[p].danger;i++) bullets[p][order.get(i)] = true;
+            pendingAmmo[p]=Math.max(0,dangerDeltas[p]);ammoChoices[p]=-1;
             chambers[p] = -1; hints[p].clear(); known[p].clear();
         }
-        phase = Phase.ROULETTE_SELECT;
+        if(pendingAmmo[0]>0||pendingAmmo[1]>0)phase=Phase.AMMO_LOAD;else spinAmmunition();
+    }
+    private void loadAmmo(int p,int chamber){
+        phase(Phase.AMMO_LOAD);
+        require(pendingAmmo[p]>0,"추가 장전할 실탄이 없습니다.");
+        require(chamber>=0&&chamber<CHAMBERS,"탄실 1~9 중 빈칸을 선택하세요.");
+        require(!bullets[p][chamber],"이미 실탄이 있는 칸입니다. 빈 탄실을 선택하세요.");
+        bullets[p][chamber]=true;ammoChoices[p]=chamber;pendingAmmo[p]=0;
+        if(pendingAmmo[0]==0&&pendingAmmo[1]==0)spinAmmunition();
+    }
+    private void spinAmmunition(){
+        // Rotate each real layout by a private offset, preserving the selected placement.
+        for(int p=0;p<2;p++){boolean[] before=bullets[p].clone();int offset=random.nextInt(CHAMBERS);
+            for(int i=0;i<CHAMBERS;i++)bullets[p][(i+offset)%CHAMBERS]=before[i];}
+        phase=Phase.ROULETTE_SELECT;
     }
     private void buyHint(int p, String hint, int selected) {
         phase(Phase.ROULETTE_SELECT);
         require(chambers[p] < 0, "이미 탄실을 확정했습니다.");
-        require(selected >= 0 && selected < 9, "탄실을 먼저 선택하세요.");
-        require(List.of("RANGE", "COMPARE", "ADJACENT", "INSPECT").contains(hint), "알 수 없는 힌트입니다.");
+        require(selected >= 0 && selected < CHAMBERS, "탄실을 먼저 선택하세요.");
+        int price=hintCost(hint);
         require(!hints[p].contains(hint), "이 힌트는 이번 라운드에 이미 구매했습니다.");
-        require(players[p].chips >= 2, "칩이 부족합니다.");
-        players[p].chips -= 2; hints[p].add(hint);
+        require(players[p].chips >= price, "칩이 부족합니다. 이 힌트는 "+price+"칩이 필요합니다.");
+        players[p].chips -= price; hints[p].add(hint);
         int group = selected / 3 * 3;
         switch (hint) {
-            case "RANGE" -> info[p].add("범위 탐색: "+(group+1)+"~"+(group+3)+"번에 실탄 "+count(p,group,3)+"발.");
-            case "COMPARE" -> {
-                int other=(group+3)%9, a=count(p,group,3), b=count(p,other,3);
-                info[p].add("구역 비교: "+(group+1)+"~"+(group+3)+"번은 "+(other+1)+"~"+(other+3)+"번보다 "+(a==b?"실탄 수가 같습니다.":a>b?"실탄이 많습니다.":"실탄이 적습니다."));
-            }
-            case "ADJACENT" -> info[p].add("연결 탐색: "+(selected+1)+"·"+((selected+1)%9+1)+"번에 실탄 "+count(p,selected,2)+"발.");
-            case "INSPECT" -> { known[p].put(selected, bullets[p][selected]); info[p].add("탄실 검사: "+(selected+1)+"번은 "+(bullets[p][selected]?"실탄":"공탄")+"입니다."); }
+            case "RANGE" -> info[p].add("범위 탐색: "+(group+1)+"~"+Math.min(CHAMBERS,group+3)+"번에 실탄 "+count(p,group,Math.min(3,CHAMBERS-group))+"발.");
+            case "INSPECT" -> { known[p].put(selected, bullets[p][selected]); info[p].add("탄실 검사: "+(selected+1)+"번은 "+(bullets[p][selected]?"실탄":"빈칸")+"입니다."); }
         }
+        hintHistory[p].add("R"+round+" · "+info[p].get(info[p].size()-1));
     }
-    private int count(int p, int start, int len) { int n=0; for(int i=0;i<len;i++) if(bullets[p][(start+i)%9]) n++; return n; }
+    private int count(int p, int start, int len) { int n=0; for(int i=0;i<len;i++) if(bullets[p][(start+i)%CHAMBERS]) n++; return n; }
     private void selectChamber(int p, int n) {
         phase(Phase.ROULETTE_SELECT);
         require(chambers[p] < 0, "이미 탄실을 확정했습니다.");
-        require(n >= 0 && n < 9, "탄실 1~9 중 하나를 선택하세요."); chambers[p] = n;
+        require(n >= 0 && n < CHAMBERS, "탄실 1~9 중 하나를 선택하세요."); chambers[p] = n;
         if (chambers[0] < 0 || chambers[1] < 0) return;
         for (int i=0;i<2;i++) {
             hit[i] = bullets[i][chambers[i]];
@@ -184,6 +195,8 @@ public final class GameEngine {
     /** 상대 패·상대 특수카드 종류·실탄 배치는 전송하지 않는다. */
     public synchronized Snapshot snapshot(int viewer) {
         Snapshot s = new Snapshot(); s.matchId=matchId; s.you=viewer; s.phase=phase; s.round=round;
+        s.pendingAmmo=pendingAmmo[viewer];s.ammoChoice=ammoChoices[viewer];
+        if(phase==Phase.AMMO_LOAD)for(int i=0;i<CHAMBERS;i++)if(bullets[viewer][i])s.loadedChambers.add(i);
         s.dangerDelta=dangerDeltas[viewer];s.draws=draws; s.winner=winner; s.reason=reason; s.roundWinner=roundWinner;
         for(int p=0;p<2;p++) {
             Player v=players[p].copy(); v.remaining=hand(p).size(); v.specialCount=cards[p].size();
@@ -193,6 +206,7 @@ public final class GameEngine {
         s.hand=hand(viewer); s.cards=new ArrayList<>(cards[viewer]); s.ownTile=tiles[viewer];
         s.ownChamber=chambers[viewer]; s.opponentParity=parity[viewer]; s.hit=hit.clone();
         s.history=new ArrayList<>(history[viewer]); s.privateInfo=new ArrayList<>(info[viewer]);
+        s.hintHistory=new ArrayList<>(hintHistory[viewer]);
         s.boughtHints=new ArrayList<>(hints[viewer]); s.knownChambers=new HashMap<>(known[viewer]);
         return s;
     }

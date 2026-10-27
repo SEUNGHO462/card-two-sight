@@ -9,16 +9,17 @@ import java.util.*;
 public final class Protocol {
     private Protocol() {}
     public static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
+    public static final int CHAMBERS=9;
     public static final int DEFAULT_PORT = 54555;
     public static final String[] CHARACTER_IDS = {"female_leather", "female_vest", "male_veteran", "female_silver", "male_punk", "male_handsome"};
     public static final String[] CHARACTER_NAMES = {"레나", "서린", "태식", "마담 류", "준", "도윤"};
-    public enum Phase { LOBBY, LOADOUT_SELECT, TILE_SELECT, SPECIAL_SELECT, ROUND_RESULT, ROULETTE_SELECT, ROULETTE_RESULT, FINAL }
+    public enum Phase { LOBBY, LOADOUT_SELECT, TILE_SELECT, SPECIAL_SELECT, ROUND_RESULT, AMMO_LOAD, ROULETTE_SELECT, ROULETTE_RESULT, FINAL }
     public enum Card {
         REVERSE("역전"), SCOUT("정찰"), DISGUISE("위장"), PREDICT("예측");
         public final String label;
         Card(String label) { this.label = label; }
     }
-    public enum Action { CREATE, JOIN, READY, START, LOADOUT, TILE, SPECIAL, NEXT, HINT, CHAMBER, REMATCH, LEAVE }
+    public enum Action { CREATE, JOIN, READY, START, LOADOUT, TILE, SPECIAL, NEXT, LOAD_AMMO, HINT, CHAMBER, REMATCH, LEAVE }
     public static final class Command {
         public Action action;
         public String name, characterId, password, hint;
@@ -36,7 +37,7 @@ public final class Protocol {
     }
     public static final class Player {
         public String name, characterId;
-        public int life = 3, wins, remaining = 9, specialCount = 2, chips = 12, danger;
+        public int life = 3, wins, remaining = 9, specialCount = 2, chips = 12, danger = 1;
         public boolean loadoutReady;
         public boolean ready, selected, specialReady, acknowledged, chamberReady, rematch;
         public Player() {}
@@ -47,11 +48,14 @@ public final class Protocol {
         public String matchId = "", password = "", message = "", reason = "";
         public Phase phase = Phase.LOBBY;
         public int dangerDelta;
+        public int pendingAmmo, ammoChoice=-1;
+        public List<Integer> loadedChambers=new ArrayList<>();
         public int you, round = 1, draws, winner = -2, ownTile, roundWinner = -2, ownChamber = -1;
         public String opponentParity = "?";
         public Player[] players = new Player[2];
         public List<Integer> hand = new ArrayList<>();
         public List<Card> cards = new ArrayList<>();
+        public List<String> hintHistory = new ArrayList<>();
         public List<String> history = new ArrayList<>(), privateInfo = new ArrayList<>(), boughtHints = new ArrayList<>();
         public Map<Integer, Boolean> knownChambers = new HashMap<>();
         public boolean[] hit = new boolean[2];
@@ -64,6 +68,11 @@ public final class Protocol {
         public static Event state(Snapshot s) { Event e = new Event(); e.type = "STATE"; e.state = s; return e; }
         public static Event error(String text) { Event e = new Event(); e.type = "ERROR"; e.message = text; return e; }
         public static Event closed(String text) { Event e = error(text); e.type = "CLOSED"; return e; }
+    }
+    public static int hintCost(String hint){
+        if("RANGE".equals(hint))return 4;
+        if("INSPECT".equals(hint))return 8;
+        throw new IllegalArgumentException("사용할 수 없는 힌트입니다.");
     }
     public static String cleanName(String s) {
         if (s == null) throw new IllegalArgumentException("닉네임을 입력하세요.");
