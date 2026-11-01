@@ -56,9 +56,11 @@ public final class MainMenuScreen extends BaseScreen {
         Dialog d=titledDialog("설정",420);
         TextButton sound=new TextButton(app.records.sound?"효과음 켜짐":"효과음 꺼짐",app.theme.skin);
         sound.addListener(new ChangeListener(){@Override public void changed(ChangeEvent e,Actor a){app.records.sound=!app.records.sound;sound.setText(app.records.sound?"효과음 켜짐":"효과음 꺼짐");app.records.save();}});
+        TextButton music=new TextButton(app.records.music?"배경음악 켜짐":"배경음악 꺼짐",app.theme.skin);
+        music.addListener(new ChangeListener(){@Override public void changed(ChangeEvent e,Actor a){app.records.music=!app.records.music;music.setText(app.records.music?"배경음악 켜짐":"배경음악 꺼짐");app.updateMusic();app.records.save();}});
         Slider volume=new Slider(0,1,.05f,false,app.theme.skin);volume.setValue(app.records.volume);
-        volume.addListener(new ChangeListener(){@Override public void changed(ChangeEvent e,Actor a){app.records.volume=volume.getValue();app.records.save();}});
-        d.getContentTable().add(sound).width(380).height(58).row();d.getContentTable().add(new Label("음량",app.theme.skin)).padTop(24).row();d.getContentTable().add(volume).width(380).height(45).row();
+        volume.addListener(new ChangeListener(){@Override public void changed(ChangeEvent e,Actor a){app.records.volume=volume.getValue();app.updateMusic();app.records.save();}});
+        d.getContentTable().add(sound).width(380).height(58).row();if(app.assets.hasMusic())d.getContentTable().add(music).width(380).height(58).padTop(10).row();d.getContentTable().add(new Label("음량",app.theme.skin)).padTop(24).row();d.getContentTable().add(volume).width(380).height(45).row();
         d.getContentTable().add(new Label("F11: 전체 화면 전환",app.theme.skin,"small")).padTop(24);d.button("닫기");d.getButtonTable().getChildren().peek().setName("settings-close");d.show(stage);
     }
 }

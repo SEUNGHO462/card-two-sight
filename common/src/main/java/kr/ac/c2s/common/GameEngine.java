@@ -116,7 +116,10 @@ public final class GameEngine {
                 } else info[p].add("예측 실패. 정확한 숫자는 공개되지 않습니다.");
             }
             if (active[1-p] != null) info[p].add("상대가 특수카드를 사용했습니다. 종류는 비공개입니다.");
-            history[p].add("R"+round+"  나 "+tiles[p]+" · 상대 "+parity[p]+" · "+(roundWinner<0?"무승부":roundWinner==p?"승리":"패배"));
+            String entry="R"+round+"  나 "+tiles[p]+" · 상대 "+parity[p]+" · "+(roundWinner<0?"무승부":roundWinner==p?"승리":"패배");
+            if (active[p] != null) entry += "\n내 특수카드 사용 · " + active[p].label;
+            if (active[1-p] != null) entry += "\n상대 특수카드 사용";
+            history[p].add(entry);
         }
         phase = Phase.ROUND_RESULT;
     }

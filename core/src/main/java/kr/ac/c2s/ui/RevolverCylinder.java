@@ -39,7 +39,7 @@ public final class RevolverCylinder extends Group {
             if(known.containsKey(i)){button.setText((i+1)+"\n"+(known.get(i)?"실탄":"빈칸"));button.getLabel().setFontScale(.73f);button.getLabel().setColor(known.get(i)?Theme.RED:Theme.MINT);}
             button.addListener(new ChangeListener(){@Override public void changed(ChangeEvent event,Actor actor){if(flow.canChoose()||flow.canPlace()&&!occupied.contains(n)){app.sound("click");choose.accept(n);}}});
             sockets[i]=button;rotating.addActor(button);
-            Image cap=new Image(art.cap);cap.setBounds(bx+5,by+5,b-10,b-10);cap.setTouchable(Touchable.disabled);caps[i]=cap;rotating.addActor(cap);
+            Image cap=new Image(app.assets.texture("ui/frames/chamber-loaded.png"));cap.setBounds(bx-1,by-1,b+2,b+2);cap.setTouchable(Touchable.disabled);caps[i]=cap;rotating.addActor(cap);
         }
         Label pointer=new Label("▼",app.theme.skin,"title");pointer.setColor(Theme.GOLD);pointer.setAlignment(com.badlogic.gdx.utils.Align.center);pointer.setBounds(size/2-28,size-43,56,42);addActor(pointer);
         sync();

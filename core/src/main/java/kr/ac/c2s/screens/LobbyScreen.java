@@ -18,7 +18,7 @@ public final class LobbyScreen extends BaseScreen {
         if(!practice)gold("접속 인원 "+(s.opponent()==null?"1 / 2":"2 / 2"),1240,834,300,42,"small");
         portrait(s.me().characterId,100,275,530,445,true);
         if(s.opponent()!=null)portrait(s.opponent().characterId,970,275,530,445,true);
-        else{panel(1000,360,470,260);gold("빈 자리",1040,470,390,65,"large");label("상대가 접속하기를 기다리는 중…",1020,400,430,40,"small",Align.center);}
+        else{panel(1070,360,420,260);gold("빈 자리",1085,470,390,65,"large");label("상대가 접속하기를 기다리는 중…",1090,400,380,40,"small",Align.center);}
         if(practice)practiceOptions();
         else{
             panel(580,510,440,170);gold("마지막 테이블",610,615,380,42,"default");label("방 비밀번호  "+s.password,600,556,400,38,"default",Align.center);
@@ -34,12 +34,12 @@ public final class LobbyScreen extends BaseScreen {
         button("방 나가기",1280,70,220,55,"small",app::confirmLeave).setName("leave-room");
     }
     private void practiceOptions(){
-        panel(555,395,490,330);gold("연습 설정",580,668,440,42,"default");
+        panel(555,395,490,330);gold("연습 설정",580,672,440,38,"default");rule(620,654,360);
         label("난이도",580,624,440,32,"small",Align.left);
         PracticeDifficulty[] modes=PracticeDifficulty.values();
         for(int i=0;i<modes.length;i++){
             PracticeDifficulty mode=modes[i];
-            TextButton b=button(mode.name(),580+i*150,566,140,48,mode==app.practiceDifficulty?"primary":"small",()->app.configurePractice(mode,app.practiceOpponent));
+            TextButton b=button(mode.name(),580+i*150,566,140,48,mode==app.practiceDifficulty?"chosen":"small",()->app.configurePractice(mode,app.practiceOpponent));
             b.setName("difficulty-"+mode.name());
         }
         paragraph(app.practiceDifficulty.description,580,510,440,45);

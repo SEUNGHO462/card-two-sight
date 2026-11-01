@@ -21,7 +21,7 @@ public final class ConnectionScreen extends BaseScreen {
         TextButton toggle=button("내 PC에서 서버도 실행: 켜짐",770,350,680,48,"small",()->{});
         toggle.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener(){@Override public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent e,float x,float y){localServer=!localServer;toggle.setText("내 PC에서 서버도 실행: "+(localServer?"켜짐":"꺼짐"));}});
         create=button("방 만들기",770,260,325,64,"primary",()->enter(true));join=button("방 입장",1125,260,325,64,"default",()->enter(false));
-        paragraph("방장은 서버 주소 127.0.0.1로 방을 만듭니다. 다른 PC는 방장의 IP와 같은 포트·비밀번호를 입력하세요. 외부 인터넷 대전은 별도 서버 설정이 필요합니다.",765,190,700,55);
+        paragraph("방장은 서버 주소 127.0.0.1로 방을 만듭니다. 다른 PC는 방장의 IP와 같은 포트·비밀번호를 입력하세요. 외부 인터넷 대전은 별도 서버 설정이 필요합니다.",765,198,700,55);
         button("뒤로",60,70,170,50,"small",()->app.go(new CharacterSelectScreen(app)));
     }
     private boolean saveName(){try{app.records.nickname=Protocol.cleanName(nickname.getText());app.records.save();return true;}catch(IllegalArgumentException e){app.toast(e.getMessage());return false;}}

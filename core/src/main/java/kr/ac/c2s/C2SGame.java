@@ -27,6 +27,7 @@ public final class C2SGame extends Game {
         assets=new GameAssets();theme=new Theme();records=new RecordStore();
         if(!Arrays.asList(CHARACTER_IDS).contains(records.character))records.character="male_handsome";
         Pixmap p=new Pixmap(1,1,Pixmap.Format.RGBA8888);p.setColor(Color.WHITE);p.fill();white=new Texture(p);p.dispose();
+        updateMusic();
         go(Arrays.asList(args).contains("--menu-preview") || Arrays.asList(args).contains("--ui-preview") || Arrays.asList(args).contains("--smoke") || Arrays.asList(args).contains("--shot-preview") || Arrays.asList(args).contains("--cylinder-preview") ? new MainMenuScreen(this) : new IntroScreen(this));
         if(Arrays.asList(args).contains("--menu-preview"))new MenuPreviewTour(this).start();
         else if(Arrays.asList(args).contains("--ui-preview"))new LobbyPreviewTour(this).start();
@@ -38,6 +39,7 @@ public final class C2SGame extends Game {
     public void go(BaseScreen next){Screen old=getScreen();setScreen(next);if(old!=null)old.dispose();}
     public void toast(String text){toast=text==null?"처리할 수 없습니다.":text;toastTime=5;}
     public void sound(String name){if(records.sound)assets.sound(name,records.volume);}
+    public void updateMusic(){assets.music(records.music?records.volume*.6f:0);}
     public void send(Command c){if(gateway!=null)gateway.send(c);}
     public void practice(){disconnect();long id=connectionGeneration;gateway=new LocalGameGateway(records.nickname,records.character,practiceOpponent,practiceDifficulty,Gdx.app::postRunnable);bind(id);send(Command.of(Action.CREATE));}
     public void online(String host,int port,String password,boolean create,boolean startServer){

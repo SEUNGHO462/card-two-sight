@@ -20,8 +20,8 @@ public final class FinalResultScreen extends BaseScreen {
         gold(s.me().name+"  "+s.me().wins+" : "+s.opponent().wins+"  "+s.opponent().name,875,394,540,48,"title");
         label("남은 목숨 · 나 "+s.me().life+" / 상대 "+s.opponent().life,875,350,540,35,"small",Align.center);
         String reason=s.reason.equals("목숨 소진")?(draw?"두 사람 모두 목숨 소진":win?"상대 목숨 소진으로 최종 승리":"내 목숨 소진으로 최종 패배"):s.reason;
-        label(reason,875,308,540,36,"small",Align.center).setName("final-reason");
-        label("무승부 "+s.draws+"회 · "+s.round+"라운드",875,267,540,32,"small",Align.center);
+        label(reason,875,312,540,36,"small",Align.center).setName("final-reason");
+        label("무승부 "+s.draws+"회 · "+s.round+"라운드",875,275,540,32,"small",Align.center);
         var recordFrame=new com.badlogic.gdx.scenes.scene2d.ui.Image(app.theme.skin.getDrawable("resultRecord"));recordFrame.setBounds(385,165,830,74);recordFrame.setName("result-record-panel");content.addActor(recordFrame);
         gold("내 누적 기록  "+app.records.wins+"승 "+app.records.losses+"패 "+app.records.draws+"무",405,180,790,44,"title").setName("result-record-summary");
         TextButton again=button(s.me().rematch?"상대 다시 하기 대기…":"다시 하기",385,80,400,68,"primary",()->app.send(Command.of(Action.REMATCH)));again.setDisabled(s.me().rematch);again.setName("rematch");

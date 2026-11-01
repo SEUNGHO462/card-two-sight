@@ -1,6 +1,8 @@
 package kr.ac.c2s.ui;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,6 +13,7 @@ public final class GameAssets implements Disposable {
     private final Map<String,Texture> textures=new HashMap<>();
     private final Map<String,Sound> sounds=new HashMap<>();
     private final Map<String,TextureRegion> trimmed=new HashMap<>();
+    private Music bgm;
     private String resolved(String path){
         if(path.equals("cards/blank.png"))return "cards/blank-droplets-v2.png";
         if(path.startsWith("cards/specials/")&&!path.contains("-droplets")){
@@ -38,5 +41,16 @@ public final class GameAssets implements Disposable {
         try{sounds.computeIfAbsent(name,n->Gdx.audio.newSound(Gdx.files.internal("audio/"+n+".wav"))).play(volume,1,pan);}
         catch(RuntimeException ignored){}
     }
-    @Override public void dispose() { textures.values().forEach(Texture::dispose);sounds.values().forEach(Sound::dispose); }
+    private FileHandle musicFile(){FileHandle file=Gdx.files.internal("audio/bgm.ogg");return file.exists()?file:Gdx.files.internal("audio/bgm.mp3");}
+    public boolean hasMusic(){return musicFile().exists();}
+    /** audio/bgm.ogg 또는 bgm.mp3를 반복 재생한다. 파일이 없으면 음악 없이 진행한다. */
+    public void music(float volume){
+        if(Boolean.getBoolean("c2s.noAudio")||bgm==null&&volume<=0||!hasMusic())return;
+        try{
+            if(bgm==null){bgm=Gdx.audio.newMusic(musicFile());bgm.setLooping(true);}
+            bgm.setVolume(volume);
+            if(volume<=0)bgm.pause();else if(!bgm.isPlaying())bgm.play();
+        }catch(RuntimeException ignored){}
+    }
+    @Override public void dispose() { textures.values().forEach(Texture::dispose);sounds.values().forEach(Sound::dispose);if(bgm!=null)bgm.dispose(); }
 }

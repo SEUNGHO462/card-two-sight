@@ -12,6 +12,8 @@ public final class CylinderArt implements Disposable {
             if(r>1)continue;
             float value=r>.90f?.22f:r>.80f?.08f:.015f+.035f*r;
             if(r>.82f&&dy<-.3f)value+=.15f;
+            // 위쪽 안벽에 그늘, 아래쪽 안벽에 반사광을 넣어 움푹 파인 구멍처럼 보이게 한다.
+            if(r<=.80f&&r>.45f)value+=dy>0?.05f*dy*(r-.45f)/.35f:0;
             p.drawPixel(x,y,Color.rgba8888(value*.86f,value*.96f,value,Math.min(1,(1-r)*35)));
         }
         bore=texture(p);

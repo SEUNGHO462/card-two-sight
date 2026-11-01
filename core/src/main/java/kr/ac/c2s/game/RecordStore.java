@@ -10,7 +10,7 @@ import kr.ac.c2s.common.Protocol.*;
 public final class RecordStore {
     private final Path file;
     public String nickname="플레이어", character="male_handsome";
-    public float volume=.45f; public boolean sound=true;
+    public float volume=.45f; public boolean sound=true, music=true;
     public int wins,losses,draws;
     private final Set<String> recorded=new LinkedHashSet<>();
     public String lastError="";
@@ -23,6 +23,7 @@ public final class RecordStore {
             wins=number(o,"승리",0);losses=number(o,"패배",0);draws=number(o,"무승부",0);
             volume=o.has("음량")?Math.max(0,Math.min(1,o.get("음량").getAsFloat())):volume;
             sound=!o.has("효과음")||o.get("효과음").getAsBoolean();
+            music=!o.has("배경음악")||o.get("배경음악").getAsBoolean();
             if(o.has("기록한경기"))for(JsonElement e:o.getAsJsonArray("기록한경기"))recorded.add(e.getAsString());
         }catch(Exception e){lastError="기록 파일을 읽지 못했습니다. 새 기록으로 시작합니다.";}
     }
@@ -36,7 +37,7 @@ public final class RecordStore {
     public void save() {
         JsonObject o=new JsonObject();o.addProperty("닉네임",nickname);o.addProperty("캐릭터",character);
         o.addProperty("승리",wins);o.addProperty("패배",losses);o.addProperty("무승부",draws);
-        o.addProperty("음량",volume);o.addProperty("효과음",sound);
+        o.addProperty("음량",volume);o.addProperty("효과음",sound);o.addProperty("배경음악",music);
         JsonArray ids=new JsonArray();recorded.forEach(ids::add);o.add("기록한경기",ids);
         try {
             Files.createDirectories(file.getParent());Path tmp=file.resolveSibling("기록.tmp");

@@ -14,7 +14,7 @@ public final class RouletteScreen extends BaseScreen {
     private kr.ac.c2s.ui.RouletteDuel duel;
     private TextButton resultNext;
     private Label resultPhase;
-    private Label[] resultCaptions,resultLives;
+    private Label[] resultCaptions;private kr.ac.c2s.ui.HeartRow[] resultLives;
     private boolean lifePresented;
     private final kr.ac.c2s.ui.CylinderArt cylinderArt;
     private kr.ac.c2s.ui.RevolverCylinder cylinder;
@@ -40,7 +40,7 @@ public final class RouletteScreen extends BaseScreen {
     }
     private void build(){
         clear();mainAction=null;preparationStatus=null;
-        gold("상대 보유 칩  "+s.opponent().chips,1260,827,305,34,"small").setName("opponent-chips");
+        chipLabel("상대 보유 칩  "+s.opponent().chips,1260,852,305,34,"small").setName("opponent-chips");
         if(s.phase==Phase.ROULETTE_RESULT){result();return;}
         if(s.me().chamberReady){if(preparation.phase()!=kr.ac.c2s.game.CylinderPreparation.Phase.LOCKED)preparation.previewAt(kr.ac.c2s.game.CylinderPreparation.Phase.LOCKED,0,selected);waiting();return;}
         preparationScreen();
@@ -52,12 +52,12 @@ public final class RouletteScreen extends BaseScreen {
         if(s.roundWinner<0)situation="숫자 대결 무승부 · 탄 수 유지";
         else if(s.roundWinner==s.you)situation="숫자 대결 승리 · 추가 장전 없이 회전";
         else situation=s.dangerDelta>0?"숫자 대결 패배 → 빈 탄실에 실탄 1발 추가":"숫자 대결 패배 · 실탄 9발 유지";
-        panel(325,735,950,64);
-        Label event=gold(situation,335,747,930,48,"title");
-        event.setColor(s.roundWinner==s.you?MINT:s.roundWinner<0?CREAM:RED);
-        gold("현재 실탄 "+s.me().danger+"발  ·  빈 탄실 "+(9-s.me().danger)+"칸",930,697,620,34,"default");
-        panel(35,300,265,385);gold("경기 기록",55,630,225,40,"default");scrollText(String.join("\n\n",s.history),55,320,225,303);
-        panel(35,137,265,137);gold("나 · "+s.me().name,55,218,225,35,"default");heartLabel(s.me().life,55,168,225);
+        Label event=banner(situation,270,718,1060,72);
+        event.setColor(CREAM);
+        paperTag("현재 실탄 "+s.me().danger+"발   |   빈 탄실 "+(9-s.me().danger)+"칸",1170,792,400,58);
+        image("ui/frames/bullets.png",1112,790,64,62).setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
+        panel(35,300,265,385);gold("경기 기록",55,634,225,36,"default");rule(68,618,200);scrollText(String.join("\n\n",s.history),55,320,225,294);
+        panel(35,137,265,137);gold("나 · "+s.me().name,55,218,225,35,"default");heartRow(s.me().life,55,168,225);
         cylinder=new kr.ac.c2s.ui.RevolverCylinder(app,cylinderArt,preparation,315,130,600,selected,s.me().danger,s.knownChambers,n->{selected=n;build();},occupied);content.addActor(cylinder);
         preparationStatus=gold("",315,94,600,30,"default");
         hintShop();
@@ -68,20 +68,23 @@ public final class RouletteScreen extends BaseScreen {
         syncPreparationLabels();
     }
     private void hintShop(){
-        panel(930,365,620,320);gold("힌트 상점",950,635,580,39,"default");
-        label("보유 칩 "+s.me().chips+" / 시작 12칩 · 경기 전체 예산",950,588,580,32,"small",Align.center);
+        panel(930,365,620,320);headerBand(945,628,590,52);gold("힌트 상점",950,636,580,36,"default");rule(1090,618,300);
+        label("보유 칩 "+s.me().chips+" / 시작 12칩 · 경기 전체 예산",950,586,580,32,"small",Align.center);
         String[] names={"범위 탐색","탄실 검사"};
         String[] descriptions={"선택 구역 1~3 / 4~6 / 7~9의 실탄 개수 확인","선택한 탄실 한 칸이 실탄인지 빈칸인지 정확히 확인"};
         String[] ids={"RANGE","INSPECT"};
         for(int i=0;i<ids.length;i++){
             String id=ids[i];int cost=kr.ac.c2s.common.Protocol.hintCost(id);boolean bought=s.boughtHints.contains(id);
-            TextButton b=button(names[i]+(bought?" · 구매 완료":s.me().chips<cost?" · "+cost+"칩 부족":" · "+cost+"칩")+"\n"+descriptions[i],950,482-i*100,580,86,"small",()->app.send(Command.hint(id,selected)));
+            TextButton b=button(names[i]+(bought?" · 구매 완료":s.me().chips<cost?" · "+cost+"칩 부족":" · "+cost+"칩")+"\n"+descriptions[i],950,482-i*100,580,86,"hint",()->app.send(Command.hint(id,selected)));
+            b.getLabel().setAlignment(Align.left);b.getLabelCell().left().expandX().padLeft(62);
+            image(i==0?"ui/frames/icon-range.png":"ui/frames/icon-inspect.png",964,500-i*100,50,50).setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
             b.setDisabled(s.phase!=Phase.ROULETTE_SELECT||!preparation.canChoose()||selected<0||bought||s.me().chips<cost);b.setName("hint-"+id);
         }
-        panel(930,145,620,200);gold("내가 구매한 힌트 · 경기 누적",950,296,580,35,"default");
+        panel(930,145,620,200);headerBand(945,290,590,46);gold("내가 구매한 힌트 · 경기 누적",950,296,580,34,"default");rule(1090,279,300);
+        image("ui/frames/icon-quill.png",958,282,42,54).setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.disabled);
         java.util.List<String> receipts=new java.util.ArrayList<>(s.hintHistory);java.util.Collections.reverse(receipts);
         String info=receipts.isEmpty()?(s.me().chips<4?"칩이 부족합니다. 이번 경기에서 구매한 힌트가 없습니다.":"선택한 탄실의 힌트를 구매하면 여기에 결과가 표시됩니다."):String.join("\n\n",receipts);
-        scrollText(info,953,159,575,127);
+        scrollText(info,953,159,575,120);
     }
     private void syncPreparationLabels(){
         if(mainAction==null||preparationStatus==null)return;
@@ -120,12 +123,12 @@ public final class RouletteScreen extends BaseScreen {
         heading("ROUND "+s.round+" / 9",null);
         duel=new kr.ac.c2s.ui.RouletteDuel(app,s);content.addActor(duel);
         resultPhase=label("",400,765,800,35,"small",Align.center);
-        resultCaptions=new Label[2];resultLives=new Label[2];lifePresented=false;
+        resultCaptions=new Label[2];resultLives=new kr.ac.c2s.ui.HeartRow[2];lifePresented=false;
         for(int side=0;side<2;side++){
             int p=side==0?s.you:1-s.you;float x=side==0?80:900;
             resultCaptions[side]=gold("",x,724,600,44,"title");
             panel(x+80,110,450,64);gold(s.players[p].name,x+95,121,190,40,"default");
-            resultLives[side]=heartLabel(s.players[p].life,x+285,120,220);
+            resultLives[side]=heartRow(s.players[p].life,x+285,120,220);
         }
         resultNext=button("결과 확인 중…",570,42,460,58,"primary",()->app.send(Command.of(Action.NEXT)));
         resultNext.setName("roulette-next");refreshResultUI();
@@ -136,11 +139,11 @@ public final class RouletteScreen extends BaseScreen {
         resultPhase.setText(t<kr.ac.c2s.game.ShotTimeline.FIRE?"방아쇠를 당깁니다…":duel.timeline.finished()?"룰렛 결과":"숨을 고릅니다…");
         for(int side=0;side<2;side++){
             int p=side==0?s.you:1-s.you;
-            resultLives[side].setText(hearts(duel.timeline.visibleLife(s.players[p].life,s.hit[p])));
+            resultLives[side].setLife(duel.timeline.visibleLife(s.players[p].life,s.hit[p]));
             boolean reveal=t>=kr.ac.c2s.game.ShotTimeline.LIFE;
             resultCaptions[side].setText(reveal?(s.hit[p]?"피격 · 목숨 -1":"생존"):"");
             resultCaptions[side].setColor(s.hit[p]?RED:MINT);
-            if(reveal&&!lifePresented&&s.hit[p])resultLives[side].addAction(Actions.sequence(Actions.color(Color.WHITE,.08f),Actions.color(RED,.3f)));
+            if(reveal&&!lifePresented&&s.hit[p])resultLives[side].flash();
         }
         if(t>=kr.ac.c2s.game.ShotTimeline.LIFE)lifePresented=true;
         resultNext.setDisabled(!duel.timeline.finished()||s.me().acknowledged);
