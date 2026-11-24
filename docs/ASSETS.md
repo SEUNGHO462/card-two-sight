@@ -10,18 +10,21 @@
 - revolver/gun.png: 같은 미술 스타일의 투명 배경 소품.
 - revolver/wheel.png: 구멍 없는 탄창 판. 실제 9개 탄실은 코드로 표시.
 - cards/blank.png: 기존 역전 카드에서 문구·문양을 제거한 숫자 카드 공용 바탕.
+- assets/intro: 인트로 자산.
+- assets/ui: 메뉴 로고·버튼·총탄 흔적·핏방울 장식.
+- assets/characters/roulette: 격발 준비·반응 자세 이미지.
 - design: 전체 화면 참고 시안. 실제 버튼은 이미지에 포함된 버튼을 재사용하지 않음.
 
-추가 이미지는 내장 image_gen.imagegen으로 생성·편집했습니다. 사용 프롬프트는 ASSET_PROMPTS.txt에 남겼습니다. 게임의 숫자·이름·점수·버튼은 Java로 표시합니다.
+추가 이미지는 내장 image_gen.imagegen으로 생성·편집했습니다. 초기 사용 프롬프트는 `docs/ASSET_PROMPTS.txt`에, 후속 메뉴·룰렛 제작 내역은 같은 폴더의 각 프롬프트 JSON에 남겼습니다. 게임의 숫자·이름·점수·버튼은 Java로 표시합니다.
 
 ## 글꼴
 
-NanumGothic-Regular.ttf: Google Fonts의 Nanum Gothic. 글꼴 라이선스는 assets/fonts/OFL.txt에 포함했습니다.
+현재 실시간 UI는 `NanumMyeongjo-Regular.ttf`와 `NanumMyeongjo-Bold.ttf`를 FreeType으로 불러옵니다. 사용권은 `assets/fonts/OFL-NanumMyeongjo.txt`입니다. `NanumGothic-Regular.ttf`와 `OFL.txt`도 보관하지만 현재 Theme의 기본 글꼴은 아닙니다.
 출처: https://github.com/google/fonts/tree/main/ofl/nanumgothic
 
 ## 효과음
 
-tools/make_audio.py로 생성한 짧은 합성 WAV 5개: 클릭·공탄·실탄·회전·승리. 외부 게임에서 추출한 소리는 없습니다. 긴 배경 음악과 전문 성우 음성은 포함하지 않았습니다.
+`assets/audio/`에는 기본 5개뿐 아니라 장전·잠금·격발 수정 버전을 포함한 합성 WAV 10개가 있습니다. 제작 도구는 `tools/make_audio.py`, `make_cylinder_audio.py`, `make_roulette_audio_v2.py`입니다. 외부 게임에서 추출한 소리는 없습니다. 긴 배경 음악과 전문 성우 음성은 포함하지 않았습니다.
 
 ## 사용 전 확인
 

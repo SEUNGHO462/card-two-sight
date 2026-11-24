@@ -4,6 +4,8 @@
 |---|---|---|
 | libGDX | 1.14.2 | https://libgdx.com/ |
 | LWJGL | 3.3.3 | https://www.lwjgl.org/ |
+| MySQL Community Server | 8.4.13 · 로컬 설치 | https://dev.mysql.com/downloads/mysql/8.4.html · .tools/mysql/LICENSE |
+| MySQL Connector/J | 9.5.0 | https://dev.mysql.com/doc/connector-j/en/ |
 | Gson | 2.13.2 | https://github.com/google/gson |
 | Gradle Wrapper | 8.14.3 | https://gradle.org/ |
 | JUnit Jupiter · 개발 테스트 | 5.11.4 | https://junit.org/junit5/ |
