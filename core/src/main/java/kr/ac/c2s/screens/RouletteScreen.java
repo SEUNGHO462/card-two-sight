@@ -30,7 +30,7 @@ public final class RouletteScreen extends BaseScreen {
         if(sameResult){s=state;refreshResultUI();return;}
         boolean samePreparation=sameKey&&(s.phase==Phase.AMMO_LOAD||s.phase==Phase.ROULETTE_SELECT)&&(state.phase==Phase.AMMO_LOAD||state.phase==Phase.ROULETTE_SELECT);
         if(!sameKey){selected=state.pendingAmmo>0?-1:0;occupied=new java.util.ArrayList<>(state.loadedChambers);loadingRequest=false;}
-        if(sameKey&&state.hintHistory.size()>s.hintHistory.size())app.toast(state.hintHistory.get(state.hintHistory.size()-1));
+        // Purchased hint results remain in the shop receipt list; do not overlay the bottom controls.
         if((state.phase==Phase.AMMO_LOAD||state.phase==Phase.ROULETTE_SELECT)&&!samePreparation){preparation=new kr.ac.c2s.game.CylinderPreparation(state.me().danger-Math.max(0,state.dangerDelta),Math.max(0,state.dangerDelta));preparationFrozen=false;fireDialogShown=false;}
         if(state.phase==Phase.AMMO_LOAD){occupied=new java.util.ArrayList<>(state.loadedChambers);if(state.ammoChoice>=0)occupied.remove(Integer.valueOf(state.ammoChoice));}
         if(samePreparation&&s.pendingAmmo>0&&state.pendingAmmo==0&&state.ammoChoice>=0){
@@ -56,27 +56,28 @@ public final class RouletteScreen extends BaseScreen {
         Label event=gold(situation,335,747,930,48,"title");
         event.setColor(s.roundWinner==s.you?MINT:s.roundWinner<0?CREAM:RED);
         gold("현재 실탄 "+s.me().danger+"발  ·  빈 탄실 "+(9-s.me().danger)+"칸",930,697,620,34,"default");
-        panel(35,300,265,385);gold("경기 기록",55,630,225,40,"default");scrollText(String.join("\n\n",s.history),55,320,225,303);
+        panel(35,300,265,385);gold("경기 기록",55,630,225,40,"default");matchHistory(s.history,55,320,225,303);
         panel(35,137,265,137);gold("나 · "+s.me().name,55,218,225,35,"default");heartLabel(s.me().life,55,168,225);
         cylinder=new kr.ac.c2s.ui.RevolverCylinder(app,cylinderArt,preparation,315,130,600,selected,s.me().danger,s.knownChambers,n->{selected=n;build();},occupied);content.addActor(cylinder);
         preparationStatus=gold("",315,94,600,30,"default");
         hintShop();
         mainAction=button("",400,32,430,54,"primary",this::prepareShot);mainAction.setName("chamber-confirm");
-        image("revolver/gun.png",1245,28,260,108);
-        label((preparation.canPlace()||preparation.phase()==kr.ac.c2s.game.CylinderPreparation.Phase.LOADING)?"금색 탄 뒷면 = 장전됨 · 검은 구멍 = 빈칸":"회전 뒤에는 실탄 위치가 숨겨집니다.",920,105,620,30,"small",Align.center);
+        image("revolver/gun.png",1245,2,250,90).setName("preparation-gun");
+        panel(930,99,620,42);
+        label((preparation.canPlace()||preparation.phase()==kr.ac.c2s.game.CylinderPreparation.Phase.LOADING)?"금색 탄 뒷면 = 장전됨 · 검은 구멍 = 빈칸":"회전 뒤에는 실탄 위치가 숨겨집니다.",930,105,620,30,"small",Align.center).setName("ammunition-legend");
         label("직접 장전 → 탄창 회전 → 힌트 확인 → 격발",315,4,600,24,"tiny",Align.center);
         syncPreparationLabels();
     }
     private void hintShop(){
         panel(930,365,620,320);gold("힌트 상점",950,635,580,39,"default");
-        label("보유 칩 "+s.me().chips+" / 시작 12칩 · 경기 전체 예산",950,588,580,32,"small",Align.center);
+        label("보유 칩 "+s.me().chips+" · 라운드당 힌트 하나만 구매",950,588,580,32,"small",Align.center);
         String[] names={"범위 탐색","탄실 검사"};
         String[] descriptions={"선택 구역 1~3 / 4~6 / 7~9의 실탄 개수 확인","선택한 탄실 한 칸이 실탄인지 빈칸인지 정확히 확인"};
         String[] ids={"RANGE","INSPECT"};
         for(int i=0;i<ids.length;i++){
             String id=ids[i];int cost=kr.ac.c2s.common.Protocol.hintCost(id);boolean bought=s.boughtHints.contains(id);
-            TextButton b=button(names[i]+(bought?" · 구매 완료":s.me().chips<cost?" · "+cost+"칩 부족":" · "+cost+"칩")+"\n"+descriptions[i],950,482-i*100,580,86,"small",()->app.send(Command.hint(id,selected)));
-            b.setDisabled(s.phase!=Phase.ROULETTE_SELECT||!preparation.canChoose()||selected<0||bought||s.me().chips<cost);b.setName("hint-"+id);
+            TextButton b=button(names[i]+(bought?" · 구매 완료":!s.boughtHints.isEmpty()?" · 이번 라운드 구매 불가":s.me().chips<cost?" · "+cost+"칩 부족":" · "+cost+"칩")+"\n"+descriptions[i],950,482-i*100,580,86,"small",()->app.send(Command.hint(id,selected)));
+            b.setDisabled(s.phase!=Phase.ROULETTE_SELECT||!preparation.canChoose()||selected<0||!s.boughtHints.isEmpty()||s.me().chips<cost);b.setName("hint-"+id);
         }
         panel(930,145,620,200);gold("내가 구매한 힌트 · 경기 누적",950,296,580,35,"default");
         java.util.List<String> receipts=new java.util.ArrayList<>(s.hintHistory);java.util.Collections.reverse(receipts);
