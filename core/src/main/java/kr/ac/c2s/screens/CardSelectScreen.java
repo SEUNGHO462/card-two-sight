@@ -45,7 +45,7 @@ public final class CardSelectScreen extends BaseScreen {
     private String shortDescription(Card c){return switch(c){
         case REVERSE->"이번 라운드에는 낮은 숫자가 승리합니다. 1 대 9 예외는 유지됩니다.";
         case SCOUT->"판정 후 상대 숫자가 1~4인지 5~9인지 나만 확인합니다.";
-        case DISGUISE->"상대에게 보이는 내 숫자의 홀짝 정보를 반대로 표시합니다.";
+        case DISGUISE->"상대에게 보여줄 홀수·짝수를 직접 선택합니다. 실제 홀짝 그대로 표시해 역으로 속일 수도 있습니다.";
         case PREDICT->"상대 숫자를 맞히면 상대의 남은 숫자 타일 한 장을 확인합니다.";
     };}
 }
