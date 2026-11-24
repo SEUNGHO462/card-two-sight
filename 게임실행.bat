@@ -1,6 +1,8 @@
 @echo off
 setlocal
 cd /d "%~dp0"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "tools\start_database.ps1"
+if errorlevel 1 goto failed
 call gradlew.bat :lwjgl3:installDist --console=plain
 if errorlevel 1 goto failed
 call "lwjgl3\build\install\CARD_TWO_SIGHT\bin\CARD_TWO_SIGHT.bat" %*
