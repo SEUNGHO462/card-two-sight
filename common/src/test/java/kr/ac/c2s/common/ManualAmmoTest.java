@@ -18,7 +18,8 @@ class ManualAmmoTest {
         e.apply(0,Command.number(Action.LOAD_AMMO,7));assertEquals(Phase.ROULETTE_SELECT,e.phase());
         assertTrue(e.snapshot(0).loadedChambers.isEmpty());assertTrue(e.snapshot(1).loadedChambers.isEmpty());assertEquals(-1,e.snapshot(1).ammoChoice);
         e.apply(0,Command.hint("INSPECT",7));assertEquals(true,e.snapshot(0).knownChambers.get(7));
-        e.apply(0,Command.hint("RANGE",1));assertTrue(e.snapshot(0).privateInfo.stream().anyMatch(t->t.contains("실탄 1발")));
+        assertThrows(IllegalArgumentException.class,()->e.apply(0,Command.hint("RANGE",1)));
+        e.apply(1,Command.hint("RANGE",1));assertTrue(e.snapshot(1).privateInfo.stream().anyMatch(t->t.contains("실탄 1발")));
         e.apply(0,Command.number(Action.CHAMBER,8));e.apply(1,Command.number(Action.CHAMBER,8));next(e);
         round(e,9,1);next(e);assertEquals(Set.of(1,7),new HashSet<>(e.snapshot(0).loadedChambers));assertEquals(List.of(1),e.snapshot(1).loadedChambers);
         e.apply(0,Command.number(Action.LOAD_AMMO,3));assertEquals(3,e.snapshot(0).me().danger);

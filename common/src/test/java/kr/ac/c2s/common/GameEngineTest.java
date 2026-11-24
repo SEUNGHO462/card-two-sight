@@ -43,7 +43,7 @@ class GameEngineTest {
         GameEngine e=null;for(int seed=0;seed<100;seed++){GameEngine candidate=engine(seed);if(candidate.snapshot(0).cards.contains(Card.DISGUISE)){e=candidate;break;}}
         assertNotNull(e);tiles(e,8,3);e.apply(0,Command.special(Card.DISGUISE,0));e.apply(1,Command.special(null,0));
         assertEquals(0,e.snapshot(0).roundWinner);assertEquals("홀수",e.snapshot(1).opponentParity);
-        assertTrue(e.snapshot(1).privateInfo.stream().noneMatch(t->t.contains("위장")));
+        assertTrue(e.snapshot(1).privateInfo.contains("상대 사용 특수카드: 위장"));
         assertEquals(1,e.snapshot(0).cards.size());
     }
     @Test void bothReverseCardsCancelAndPredictionRewardExcludesUsedTile(){
@@ -72,7 +72,8 @@ class GameEngineTest {
         GameEngine e=null;for(int seed=0;seed<100;seed++){GameEngine candidate=engine(seed);if(candidate.snapshot(0).cards.contains(Card.SCOUT)){e=candidate;break;}}
         assertNotNull(e);tiles(e,4,8);e.apply(0,Command.special(Card.SCOUT,0));e.apply(1,Command.special(null,0));
         assertTrue(e.snapshot(0).privateInfo.stream().anyMatch(t->t.contains("5~9")));
-        assertTrue(e.snapshot(1).privateInfo.stream().noneMatch(t->t.contains("5~9")||t.contains("정찰")));
+        assertTrue(e.snapshot(1).privateInfo.stream().noneMatch(t->t.contains("5~9")));
+        assertTrue(e.snapshot(1).privateInfo.contains("상대 사용 특수카드: 정찰"));
     }
     @Test void riskDeltaReportsLossOnlyAndWinsKeepAccumulatedCount(){
         GameEngine e=engine(31);tiles(e,8,2);specials(e);

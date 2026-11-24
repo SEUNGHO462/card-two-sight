@@ -17,12 +17,12 @@ class NineChamberTest {
     }
     @Test void hintReceiptsRemainAfterRoundChangeAndCannotLeakToOpponent(){
         GameEngine e=game();result(e,1,2);next(e);
-        e.apply(0,Command.hint("RANGE",6));e.apply(0,Command.hint("INSPECT",6));
-        Snapshot s=e.snapshot(0);assertEquals(2,s.hintHistory.size());assertTrue(s.hintHistory.get(0).contains("7~9"));assertTrue(s.hintHistory.get(1).contains("7번"));
-        assertTrue(e.snapshot(1).hintHistory.isEmpty());assertEquals(0,s.me().chips);
+        e.apply(0,Command.hint("RANGE",6));assertThrows(IllegalArgumentException.class,()->e.apply(0,Command.hint("INSPECT",6)));
+        Snapshot s=e.snapshot(0);assertEquals(1,s.hintHistory.size());assertTrue(s.hintHistory.get(0).contains("7~9"));
+        assertTrue(e.snapshot(1).hintHistory.isEmpty());assertEquals(8,s.me().chips);
         assertThrows(IllegalArgumentException.class,()->e.apply(0,Command.hint("INSPECT",9)));
         assertThrows(IllegalArgumentException.class,()->e.apply(0,Command.number(Action.CHAMBER,9)));
         e.apply(0,Command.number(Action.CHAMBER,8));e.apply(1,Command.number(Action.CHAMBER,8));next(e);
-        assertEquals(2,e.snapshot(0).hintHistory.size());assertTrue(e.snapshot(0).boughtHints.isEmpty());assertEquals(0,e.snapshot(0).me().chips);
+        assertEquals(1,e.snapshot(0).hintHistory.size());assertTrue(e.snapshot(0).boughtHints.isEmpty());assertEquals(8,e.snapshot(0).me().chips);
     }
 }
