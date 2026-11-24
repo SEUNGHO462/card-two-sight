@@ -13,17 +13,19 @@ public final class Protocol {
     public static final int DEFAULT_PORT = 54555;
     public static final String[] CHARACTER_IDS = {"female_leather", "female_vest", "male_veteran", "female_silver", "male_punk", "male_handsome"};
     public static final String[] CHARACTER_NAMES = {"레나", "서린", "태식", "마담 류", "준", "도윤"};
-    public enum Phase { LOBBY, LOADOUT_SELECT, TILE_SELECT, SPECIAL_SELECT, ROUND_RESULT, AMMO_LOAD, ROULETTE_SELECT, ROULETTE_RESULT, FINAL }
+    public enum Phase { LOBBY, LOADOUT_SELECT, BET_SELECT, TILE_SELECT, SPECIAL_SELECT, ROUND_RESULT, AMMO_LOAD, ROULETTE_SELECT, ROULETTE_RESULT, FINAL }
     public enum Card {
         REVERSE("역전"), SCOUT("정찰"), DISGUISE("위장"), PREDICT("예측");
         public final String label;
         Card(String label) { this.label = label; }
     }
-    public enum Action { CREATE, JOIN, READY, START, LOADOUT, TILE, SPECIAL, NEXT, LOAD_AMMO, HINT, CHAMBER, REMATCH, LEAVE }
+    public enum Action { CREATE, JOIN, READY, START, LOADOUT, BET, TILE, SPECIAL, NEXT, LOAD_AMMO, HINT, CHAMBER, REMATCH, HISTORY, LEAVE }
     public static final class Command {
         public Action action;
         public String name, characterId, password, hint;
         public Card card;
+        /** Optional display choice for DISGUISE; null preserves legacy parity inversion. */
+        public Boolean disguiseOdd;
         public List<Card> loadout;
         public int number;
         public static Command of(Action a) { Command c = new Command(); c.action = a; return c; }
@@ -32,21 +34,41 @@ public final class Protocol {
             Command c = of(a); c.name = name; c.characterId = id; c.password = password; return c;
         }
         public static Command special(Card card, int predicted) { Command c = number(Action.SPECIAL, predicted); c.card = card; return c; }
+        public static Command disguise(boolean odd) { Command c = special(Card.DISGUISE, 0); c.disguiseOdd = odd; return c; }
         public static Command loadout(List<Card> cards) { Command c=of(Action.LOADOUT);c.loadout=cards==null?null:new ArrayList<>(cards);return c; }
         public static Command hint(String hint, int chamber) { Command c = number(Action.HINT, chamber); c.hint = hint; return c; }
     }
     public static final class Player {
         public String name, characterId;
         public int life = 3, wins, remaining = 9, specialCount = 2, chips = 12, danger = 1;
+        public int bet;
+        public boolean betReady;
         public boolean loadoutReady;
         public boolean ready, selected, specialReady, acknowledged, chamberReady, rematch;
         public Player() {}
         public Player(String name, String characterId) { this.name = name; this.characterId = characterId; }
         public Player copy() { return JSON.fromJson(JSON.toJson(this), Player.class); }
     }
+    /** Viewer-specific deductions from a completed round; never the hidden opponent hand. */
+    public static final class RoundObservation {
+        public int round;
+        public List<Integer> possibleOpponentTiles = new ArrayList<>();
+        /** A remaining tile revealed to this viewer by a successful prediction, or zero. */
+        public int knownRemainingTile;
+        public RoundObservation copy() {
+            RoundObservation result = new RoundObservation();
+            result.round = round;
+            result.possibleOpponentTiles = new ArrayList<>(possibleOpponentTiles);
+            result.knownRemainingTile = knownRemainingTile;
+            return result;
+        }
+    }
     public static final class Snapshot {
         public String matchId = "", password = "", message = "", reason = "";
         public Phase phase = Phase.LOBBY;
+        public boolean bettingEnabled;
+        public int ownBet, opponentBet, matchedBet;
+        public List<String> chipHistory = new ArrayList<>();
         public int dangerDelta;
         public int pendingAmmo, ammoChoice=-1;
         public List<Integer> loadedChambers=new ArrayList<>();
@@ -57,14 +79,22 @@ public final class Protocol {
         public List<Card> cards = new ArrayList<>();
         public List<String> hintHistory = new ArrayList<>();
         public List<String> history = new ArrayList<>(), privateInfo = new ArrayList<>(), boughtHints = new ArrayList<>();
+        public List<RoundObservation> opponentObservations = new ArrayList<>();
         public Map<Integer, Boolean> knownChambers = new HashMap<>();
         public boolean[] hit = new boolean[2];
         public Player me() { return players[you]; }
         public Player opponent() { return players[1 - you]; }
     }
+    public static final class MatchRecord {
+        public String matchId,playerA,playerB,finishedAt,reason;
+        public String matchMode="ONLINE",aiDifficulty;
+        public int winsA,winsB,winner;
+    }
     public static final class Event {
         public String type, message;
         public Snapshot state;
+        public List<MatchRecord> records;
+        public static Event history(List<MatchRecord> rows){Event e=new Event();e.type="HISTORY";e.records=rows;return e;}
         public static Event state(Snapshot s) { Event e = new Event(); e.type = "STATE"; e.state = s; return e; }
         public static Event error(String text) { Event e = new Event(); e.type = "ERROR"; e.message = text; return e; }
         public static Event closed(String text) { Event e = error(text); e.type = "CLOSED"; return e; }
