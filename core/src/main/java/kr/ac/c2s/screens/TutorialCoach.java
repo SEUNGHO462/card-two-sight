@@ -133,8 +133,8 @@ public final class TutorialCoach {
             this.screen=screen;setTouchable(Touchable.childrenOnly);setName("tutorial-guide");
             if(ring==null)makeTextures();
             bubble.setBackground(app.theme.panel());bubble.pad(16,22,12,22);bubble.setTouchable(Touchable.childrenOnly);bubble.setName("tutorial-bubble");
-            text=new Label("",app.theme.skin,"small");text.setColor(Color.valueOf("fff2dc"));text.setWrap(true);text.setAlignment(Align.topLeft);text.setName("tutorial-text");
-            bubble.add(text).width(470).left();
+            text=new Label("",app.theme.skin,"body");text.setColor(Color.valueOf("fff2dc"));text.setWrap(true);text.setAlignment(Align.topLeft);text.setName("tutorial-text");
+            bubble.add(text).width(540).left();
             tail.setTouchable(Touchable.disabled);
             addActor(tail);addActor(bubble);
             // 건너뛰기는 말풍선과 떨어진 왼쪽 아래 구석에 작게 두고, 누르면 확인창을 한 번 더 띄운다.
@@ -184,7 +184,7 @@ public final class TutorialCoach {
             float by=above?anchor.y+anchor.height+26:anchor.y-26-bh;
             if(!above&&by<10){above=true;by=Math.min(anchor.y+anchor.height+26,H-bh-10);}
             float bx=MathUtils.clamp(cx-bw/2,16,W-bw-16);
-            float bob=(float)Math.sin(t*3)*3;
+            float bob=0; // 글씨가 흔들리면 읽기 어려워 말풍선은 고정한다.
             bubble.setPosition(bx,by+bob);
             tail.setDrawable(new TextureRegionDrawable(new TextureRegion(above?tailDown:tailUp)));
             tail.setSize(34,20);

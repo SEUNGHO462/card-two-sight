@@ -13,4 +13,13 @@ public final class MenuDecor {
         patch.setLeftWidth(48);patch.setRightWidth(48);patch.setTopHeight(19);patch.setBottomHeight(19);patch.setColor(tint);
         NinePatchDrawable d=new NinePatchDrawable(patch);d.setMinWidth(0);d.setMinHeight(0);return d;
     }
+    /** 게임 전체의 강조(primary) 버튼을 메인 메뉴 '테이블에 앉기'와 같은 명판 배경으로 바꾼다. */
+    public static void applyToPrimary(C2SGame app){
+        var style=app.theme.skin.get("primary",com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle.class);
+        style.up=plaque(app,Color.WHITE);
+        style.over=plaque(app,new Color(1,.93f,.80f,1));
+        style.down=plaque(app,new Color(.82f,.70f,.60f,1));style.checked=style.down;
+        style.disabled=plaque(app,new Color(.42f,.38f,.36f,.9f));
+        style.fontColor=Theme.CREAM;style.overFontColor=Color.WHITE;style.downFontColor=null;style.checkedFontColor=null;
+    }
 }

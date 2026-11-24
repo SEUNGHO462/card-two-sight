@@ -24,7 +24,7 @@ public final class C2SGame extends Game {
     private final String[] args;
     public C2SGame(String[] args){this.args=args;}
     @Override public void create(){
-        assets=new GameAssets();theme=new Theme();records=new RecordStore();
+        assets=new GameAssets();theme=new Theme();records=new RecordStore();MenuDecor.applyToPrimary(this);
         if(!Arrays.asList(CHARACTER_IDS).contains(records.character))records.character="male_handsome";
         Pixmap p=new Pixmap(1,1,Pixmap.Format.RGBA8888);p.setColor(Color.WHITE);p.fill();white=new Texture(p);p.dispose();
         updateMusic();
