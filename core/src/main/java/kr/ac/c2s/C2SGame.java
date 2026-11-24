@@ -52,7 +52,7 @@ public final class C2SGame extends Game {
             toast("서버에 연결하는 중입니다…");
         }catch(Exception e){connecting=false;toast("서버를 열지 못했습니다. 포트가 이미 사용 중인지 확인하세요.");}
     }
-    private void bind(long generation){gateway.setListener(event->{if(generation!=connectionGeneration)return;if("STATE".equals(event.type)){connecting=false;accept(event.state);}else{toast(event.message);connecting=false;if("CLOSED".equals(event.type)){disconnect();go(new ConnectionScreen(this));}}});}
+    private void bind(long generation){gateway.setListener(event->{if(generation!=connectionGeneration)return;if("HISTORY".equals(event.type)){showDatabaseHistory(event.records);}else if("STATE".equals(event.type)){connecting=false;accept(event.state);}else{toast(event.message);connecting=false;if("CLOSED".equals(event.type)){disconnect();go(new ConnectionScreen(this));}}});}
     public void accept(Snapshot next){
         if(next==null || next.players[next.you]==null)return;state=next;
         if(next.phase==Phase.FINAL){records.record(next);if(!records.lastError.isEmpty())toast(records.lastError);}
@@ -64,6 +64,22 @@ public final class C2SGame extends Game {
         else{if(getScreen() instanceof GameScreen s){s.accept(next);return;}target=new GameScreen(this,next);}
         go(target);
     }
+    public void requestDatabaseHistory(){send(Command.of(Action.HISTORY));toast("DB 경기 기록을 불러오는 중…");}
+    private void showDatabaseHistory(java.util.List<MatchRecord> rows){
+        if(!(getScreen() instanceof BaseScreen screen))return;
+        var d=screen.titledDialog("최근 경기 기록 · 온라인 / AI",900);
+        StringBuilder text=new StringBuilder();
+        if(rows==null||rows.isEmpty())text.append("저장된 경기 기록이 없습니다.");
+        else for(MatchRecord row:rows){
+            String time;try{time=java.time.Instant.parse(row.finishedAt).atZone(java.time.ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));}catch(Exception e){time=row.finishedAt;}
+            String mode="AI".equals(row.matchMode)?"AI · "+("EASY".equals(row.aiDifficulty)?"쉬움":"HARD".equals(row.aiDifficulty)?"어려움":"보통"):"온라인";
+            text.append("[").append(mode).append("] ").append(time).append(" · ").append(row.playerA).append(" ").append(row.winsA).append(":").append(row.winsB).append(" ").append(row.playerB)
+                .append("\n").append(row.winner<0?"무승부":"승자: "+(row.winner==0?row.playerA:row.playerB)).append(" · ").append(row.reason).append("\n\n");
+        }
+        var label=new com.badlogic.gdx.scenes.scene2d.ui.Label(text.toString(),theme.skin,"small");label.setWrap(true);
+        var scroll=new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane(label,theme.skin);scroll.setScrollingDisabled(true,false);scroll.setFadeScrollBars(false);
+        d.getContentTable().add(scroll).width(900).height(420);d.button("닫기");d.show(screen.stage);screen.stage.setScrollFocus(scroll);toastTime=0;
+    }
     public void disconnect(){connectionGeneration++;connecting=false;if(gateway!=null){gateway.close();gateway=null;}state=null;}
     public void home(){disconnect();go(new MainMenuScreen(this));}
     public void confirmLeave(){
@@ -72,11 +88,16 @@ public final class C2SGame extends Game {
         var screen=(BaseScreen)getScreen();
         var dialog=screen.titledDialog("테이블 나가기",580);
         var message=new com.badlogic.gdx.scenes.scene2d.ui.Label("진행 중인 방을 나가시겠습니까?",theme.skin,"body");
-        dialog.getContentTable().add(message).width(580).left().padBottom(12);
+        dialog.setName("leave-dialog");
+        message.setAlignment(com.badlogic.gdx.utils.Align.center);message.setWrap(true);
+        dialog.getContentTable().add(message).width(580).height(80).center().padBottom(12);
         var leave=new com.badlogic.gdx.scenes.scene2d.ui.TextButton("나가기",theme.skin);
         leave.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener(){@Override public void changed(ChangeEvent e,com.badlogic.gdx.scenes.scene2d.Actor actor){home();}});
-        dialog.getButtonTable().add(leave).minWidth(220).minHeight(60).pad(10);
-        dialog.button("계속하기");dialog.getButtonTable().getChildren().peek().setName("leave-cancel");dialog.show(screen.stage);
+        leave.setName("leave-confirm");
+        dialog.getButtonTable().add(leave).width(220).height(60).pad(10);
+        dialog.button("계속하기");var cancel=dialog.getButtonTable().getChildren().peek();cancel.setName("leave-cancel");
+        dialog.getButtonTable().getCell(cancel).width(220).height(60).pad(10);
+        dialog.show(screen.stage);
     }
     public void toggleFullscreen(){if(Gdx.graphics.isFullscreen())Gdx.graphics.setWindowedMode(1280,720);else Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());}
     @Override public void dispose(){disconnect();if(ownedServer!=null)ownedServer.close();if(getScreen()!=null)getScreen().dispose();assets.dispose();theme.dispose();white.dispose();}

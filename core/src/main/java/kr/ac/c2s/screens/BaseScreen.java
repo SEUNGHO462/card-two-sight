@@ -48,15 +48,25 @@ public abstract class BaseScreen extends ScreenAdapter {
     protected TextField field(String initial,String hint,float x,float y,float w,float h){TextField f=new TextField(initial,app.theme.skin);f.setMessageText(hint);f.setBounds(x,y,w,h);content.addActor(f);return f;}
     protected void paragraph(String text,float x,float y,float w,float h){Label l=label(text,x,y,w,h,"small",Align.topLeft);l.setWrap(true);}
     protected void scrollText(String text,float x,float y,float w,float h){Label l=new Label(text,app.theme.skin,"small");l.setWrap(true);Table t=new Table();t.top().left();t.add(l).width(w-24).top().left();ScrollPane s=new ScrollPane(t,app.theme.skin);s.setFadeScrollBars(false);s.setScrollingDisabled(true,false);s.setBounds(x,y,w,h);content.addActor(s);}
-    protected void heading(String title,String sub){gold("CARD TWO SIGHT",35,844,300,36,"small");gold(title,440,800,720,64,"title");if(sub!=null)label(sub,350,758,900,36,"small",Align.center);}
+    protected void matchHistory(java.util.List<String> entries,float x,float y,float w,float h){
+        Label text=new Label(entries.isEmpty()?"완료된 라운드가 없습니다.":String.join("\n\n",entries),app.theme.skin,"tiny");
+        text.setName("match-history-text");text.setWrap(true);text.setAlignment(Align.topLeft);
+        Table table=new Table();table.top().left();table.add(text).width(w-20).top().left();
+        ScrollPane pane=new ScrollPane(table,app.theme.skin);pane.setName("match-history-scroll");
+        pane.setFadeScrollBars(false);pane.setScrollingDisabled(true,false);pane.setBounds(x,y,w,h);content.addActor(pane);
+    }
+    protected void heading(String title,String sub){
+        Image logo=new Image(new TextureRegionDrawable(app.assets.trimmed("ui/menu/logo-antique-v1.png")));
+        logo.setScaling(Scaling.fit);logo.setBounds(35,805,300,90);logo.setName("corner-brand-logo");logo.setTouchable(Touchable.disabled);content.addActor(logo);gold(title,440,800,720,64,"title");if(sub!=null)label(sub,350,758,900,36,"small",Align.center);}
     protected String hearts(int life){return "♥".repeat(Math.max(0,life))+"♡".repeat(Math.max(0,3-life));}
     protected Label heartLabel(int life,float x,float y,float w){Label l=label(hearts(life),x,y,w,42,"title",Align.center);l.setColor(RED);return l;}
     public Dialog titledDialog(String title,float width){
         Dialog d=new Dialog("",app.theme.skin);d.setMovable(false);d.getTitleTable().setVisible(false);
         d.getContentTable().pad(28,30,18,30);
         Label heading=new Label(title,app.theme.skin,"title");heading.setColor(GOLD);
-        d.getContentTable().add(heading).width(width).left().padBottom(24).row();
-        d.getButtonTable().defaults().minWidth(180).minHeight(58).pad(10);
+        heading.setAlignment(Align.center);
+        d.getContentTable().add(heading).width(width).center().padBottom(24).row();
+        d.getButtonTable().defaults().width(220).height(60).pad(10);
         d.getButtonTable().pad(0,20,18,20);return d;
     }
     public void modal(String title,String text){
