@@ -27,7 +27,8 @@ public final class C2SGame extends Game {
         assets=new GameAssets();theme=new Theme();records=new RecordStore();
         if(!Arrays.asList(CHARACTER_IDS).contains(records.character))records.character="male_handsome";
         Pixmap p=new Pixmap(1,1,Pixmap.Format.RGBA8888);p.setColor(Color.WHITE);p.fill();white=new Texture(p);p.dispose();
-        go(Arrays.asList(args).contains("--menu-preview") || Arrays.asList(args).contains("--ui-preview") || Arrays.asList(args).contains("--smoke") || Arrays.asList(args).contains("--shot-preview") || Arrays.asList(args).contains("--cylinder-preview") ? new MainMenuScreen(this) : new IntroScreen(this));
+        go(Arrays.asList(args).contains("--menu-preview") || Arrays.asList(args).contains("--ui-preview") || Arrays.asList(args).contains("--smoke") || Arrays.asList(args).contains("--shot-preview") || Arrays.asList(args).contains("--cylinder-preview") || Arrays.asList(args).contains("--tutorial-preview") ? new MainMenuScreen(this) : new IntroScreen(this));
+        if(Arrays.asList(args).contains("--tutorial-preview"))new TutorialPreviewTour(this).start();
         if(Arrays.asList(args).contains("--menu-preview"))new MenuPreviewTour(this).start();
         else if(Arrays.asList(args).contains("--ui-preview"))new LobbyPreviewTour(this).start();
         else if(Arrays.asList(args).contains("--intro-preview"))new IntroPreviewTour(this).start();
@@ -53,7 +54,14 @@ public final class C2SGame extends Game {
         }catch(Exception e){connecting=false;toast("서버를 열지 못했습니다. 포트가 이미 사용 중인지 확인하세요.");}
     }
     private void bind(long generation){gateway.setListener(event->{if(generation!=connectionGeneration)return;if("HISTORY".equals(event.type)){showDatabaseHistory(event.records);}else if("STATE".equals(event.type)){connecting=false;accept(event.state);}else{toast(event.message);connecting=false;if("CLOSED".equals(event.type)){disconnect();go(new ConnectionScreen(this));}}});}
+    /** 튜토리얼 모드일 때만 존재한다. 연습 경기 위에 단계별 설명을 띄운다. */
+    public TutorialCoach tutorial;
+    public void startTutorial(){practiceDifficulty=PracticeDifficulty.EASY;practice();tutorial=new TutorialCoach(this);}
     public void accept(Snapshot next){
+        route(next);
+        if(tutorial!=null && next!=null && state==next && getScreen() instanceof BaseScreen screen)tutorial.onState(screen,next);
+    }
+    private void route(Snapshot next){
         if(next==null || next.players[next.you]==null)return;state=next;
         if(next.phase==Phase.FINAL){records.record(next);if(!records.lastError.isEmpty())toast(records.lastError);}
         BaseScreen target;
@@ -80,7 +88,7 @@ public final class C2SGame extends Game {
         var scroll=new com.badlogic.gdx.scenes.scene2d.ui.ScrollPane(label,theme.skin);scroll.setScrollingDisabled(true,false);scroll.setFadeScrollBars(false);
         d.getContentTable().add(scroll).width(900).height(420);d.button("닫기");d.show(screen.stage);screen.stage.setScrollFocus(scroll);toastTime=0;
     }
-    public void disconnect(){connectionGeneration++;connecting=false;if(gateway!=null){gateway.close();gateway=null;}state=null;}
+    public void disconnect(){tutorial=null;connectionGeneration++;connecting=false;if(gateway!=null){gateway.close();gateway=null;}state=null;}
     public void home(){disconnect();go(new MainMenuScreen(this));}
     public void confirmLeave(){
         if(getScreen() instanceof MainMenuScreen){Gdx.app.exit();return;}

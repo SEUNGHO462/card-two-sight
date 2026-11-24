@@ -45,9 +45,10 @@ public final class MainMenuScreen extends BaseScreen {
         logo.setScaling(com.badlogic.gdx.utils.Scaling.fit);logo.setBounds(330,505,940,315);logo.setTouchable(Touchable.disabled);content.addActor(logo);
         label("오늘 밤, 마지막 한 판이 시작된다.",400,445,800,44);
         ornate("테이블에 앉기",500,285,600,90,true,"start",()->app.go(new CharacterSelectScreen(app)));
-        ornate("게임 방법",420,190,240,70,false,"help",this::help);
-        ornate("설정",680,190,240,70,false,"settings",this::settings);
-        ornate("종료",940,190,240,70,false,"exit",Gdx.app::exit);
+        ornate("튜토리얼",330,190,220,70,false,"tutorial",()->TutorialCoach.offer(app,this));
+        ornate("게임 방법",570,190,220,70,false,"help",this::help);
+        ornate("설정",810,190,220,70,false,"settings",this::settings);
+        ornate("종료",1050,190,220,70,false,"exit",Gdx.app::exit);
         label("2인 온라인 대전 · 연습 모드    /    F11 전체 화면",400,60,800,32,"tiny",Align.center);
     }
     private void help(){
