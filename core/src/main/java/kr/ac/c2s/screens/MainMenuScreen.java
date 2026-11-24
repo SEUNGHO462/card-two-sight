@@ -48,10 +48,30 @@ public final class MainMenuScreen extends BaseScreen {
         ornate("게임 방법",420,190,240,70,false,"help",this::help);
         ornate("설정",680,190,240,70,false,"settings",this::settings);
         ornate("종료",940,190,240,70,false,"exit",Gdx.app::exit);
-        label("기록  "+app.records.wins+"승  "+app.records.losses+"패  "+app.records.draws+"무",470,100,660,36,"small",Align.center);
         label("2인 온라인 대전 · 연습 모드    /    F11 전체 화면",400,60,800,32,"tiny",Align.center);
     }
-    private void help(){modal("게임 방법","게임 시작 전 특수카드 4종 중 서로 다른 2장을 직접 선택합니다.\n\n각자 숫자 타일 1~9를 한 번씩 사용합니다. 높은 숫자가 승리하고, 같은 수는 무승부입니다. 단, 1은 9를 이깁니다.\n\n서로 타일을 확정한 뒤 특수카드 1장 또는 사용 안 함을 선택합니다. 상대 숫자는 끝까지 숨기고, 판정 뒤 홀짝만 표시합니다.\n\n9칸 탄창에 기본 실탄 1발로 시작합니다. 패배하면 원하는 빈 탄실을 골라 실탄 1발을 넣으며, 승리·무승부에는 유지됩니다. 탄창 회전 뒤 탄실 1~9을 골라 격발합니다. 실탄이면 목숨 1개가 줄어듭니다.\n\n목숨은 3개입니다. 목숨이 0이면 즉시 패배하며, 둘 다 살아서 9라운드를 마치면 라운드 승리 횟수로 최종 판정합니다.\n\n힌트는 내 실탄 배치를 추리하는 기능입니다. 시작 칩 12개를 한 경기 동안 사용합니다. 범위 탐색은 4칩, 탄실 검사는 8칩이며 라운드마다 칩이 충전되지는 않습니다.");}
+    private void help(){
+        Dialog d=titledDialog("게임 방법",760);d.setName("help-dialog");
+        Table rules=new Table();rules.top().left();
+        helpSection(rules,"게임 준비","특수카드 4종 중 서로 다른 2장을 선택합니다. 각 카드는 경기 중 한 번씩, 라운드당 최대 1장 사용할 수 있습니다.");
+        helpSection(rules,"숫자 대결","숫자 타일 1~9를 한 번씩 사용합니다. 높은 숫자가 승리하고 같은 숫자는 무승부입니다. 단, 1은 9를 이깁니다.");
+        helpSection(rules,"베팅","보유 칩 30개로 시작합니다. 매 라운드 각자 1~3칩을 걸고, 적게 건 금액만큼 숫자 대결로 승부합니다. 초과분과 무승부는 반환하며, 같은 칩으로 힌트를 구매합니다. 칩이 없으면 0칩으로 진행합니다.");
+        helpSection(rules,"특수카드","숫자를 확정한 뒤 카드 사용 여부를 선택합니다. 상대 숫자는 숨겨지고, 판정 뒤 홀짝과 사용한 특수카드를 확인할 수 있습니다.");
+        helpSection(rules,"장전과 격발","9칸 탄창에 실탄 1발로 시작합니다. 패배하면 원하는 빈칸에 1발을 추가하며, 승리·무승부에는 유지됩니다. 회전 뒤 탄실을 골라 격발하고 피격 시 목숨이 1 감소합니다.");
+        helpSection(rules,"승리 조건","목숨은 3개입니다. 목숨이 0이면 패배하고, 둘 다 9라운드까지 생존하면 숫자 대결 승수로 최종 판정합니다.");
+        helpSection(rules,"힌트 구매","베팅과 같은 보유 칩을 사용합니다. 범위 탐색은 4칩, 탄실 검사는 8칩이며 두 힌트 중 하나만 라운드당 1회 구매할 수 있습니다. 칩은 추가 지급되지 않습니다.");
+        ScrollPane scroll=new ScrollPane(rules,app.theme.skin);scroll.setName("help-scroll");
+        scroll.setFadeScrollBars(false);scroll.setScrollingDisabled(true,false);
+        d.getContentTable().add(scroll).width(760).height(400).row();
+        d.button("닫기");d.getButtonTable().getChildren().peek().setName("help-close");
+        d.show(stage);stage.setScrollFocus(scroll);
+    }
+    private void helpSection(Table table,String title,String text){
+        Label heading=new Label(title,app.theme.skin,"default");heading.setColor(GOLD);
+        Label body=new Label(text,app.theme.skin,"small");body.setWrap(true);body.setAlignment(Align.topLeft);
+        table.add(heading).width(714).left().padBottom(8).row();
+        table.add(body).width(714).left().padBottom(22).row();
+    }
     private void settings(){
         Dialog d=titledDialog("설정",420);
         TextButton sound=new TextButton(app.records.sound?"효과음 켜짐":"효과음 꺼짐",app.theme.skin);
