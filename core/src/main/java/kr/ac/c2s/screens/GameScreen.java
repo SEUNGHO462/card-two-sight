@@ -38,30 +38,30 @@ public final class GameScreen extends BaseScreen {
         s=state;if(s.ownTile>0)selected=s.ownTile;build();
     }
     private void hud(){heading("ROUND "+s.round+" / 9",s.me().name+"  "+s.me().wins+" : "+s.opponent().wins+"  "+s.opponent().name+"     무승부 "+s.draws);
-        panel(42,628,300,120);gold("나 · "+s.me().name,55,700,275,32,"default");heartLabel(s.me().life,60,650,270);
-        panel(1258,628,300,120);gold("상대 · "+s.opponent().name,1270,700,275,32,"default");heartLabel(s.opponent().life,1270,650,270);
+        panel(42,628,300,120);gold("나 · "+s.me().name,55,700,275,32,"default");heartRow(s.me().life,60,650,270);
+        panel(1258,628,300,120);gold("상대 · "+s.opponent().name,1270,700,275,32,"default");heartRow(s.opponent().life,1270,650,270);
         hudChips=label("남은 타일 "+s.me().remaining+"장 · 보유 칩 "+shownChips,42,585,300,32,"small",Align.center);
         label("남은 타일 "+s.opponent().remaining+"장 · 특수카드 "+s.opponent().specialCount+"장",1210,585,390,32,"small",Align.center);
-        gold("상대 보유 칩  "+s.opponent().chips,1210,548,390,32,"default").setName("opponent-chips");
-        panel(43,175,280,380);gold("경기 기록",60,505,245,40,"default");matchHistory(s.history,63,192,240,302);
+        chipLabel("상대 보유 칩  "+s.opponent().chips,1210,548,390,32,"default").setName("opponent-chips");
+        panel(43,175,280,380);gold("경기 기록",60,510,245,36,"default");rule(83,494,200);matchHistory(s.history,63,192,240,296);
         button("테이블 나가기",1350,55,210,48,"small",app::confirmLeave);
     }
     private void build(){clear();hudChips=topChips=betChips=chipEffect=null;hud();if(s.phase==Phase.BET_SELECT){betting();addChipEffect();return;}
-        if(s.bettingEnabled){topChips=gold("보유 칩  "+shownChips+"     |     상대  "+s.opponent().chips,390,752,820,32,"small");}
+        // 보유 칩은 양쪽 HUD에 이미 표시되므로 제목 아래 중복 줄은 두지 않는다(제목 부제와 겹침).
         if(s.phase==Phase.ROUND_RESULT){result();addChipEffect();return;}
         String instruction=s.phase==Phase.TILE_SELECT?(s.me().selected?"상대의 타일 선택을 기다리는 중…":"사용할 숫자 타일을 선택하세요"):"특수카드를 사용하거나 이번에는 넘기세요";
         gold(instruction,360,680,880,55,"default");
         tile("?",550,435,150,200,false,false,null);
         tile(selected==0?"?":String.valueOf(selected),895,435,150,200,selected>0&&selected%2==0,false,null);
-        gold("VS",730,500,140,60,"large");
-        if(s.bettingEnabled)label("베팅  나 "+s.ownBet+" / 상대 "+s.opponentBet+" · 승부 칩 "+s.matchedBet,480,640,640,32,"small",Align.center);label("상대",550,390,150,36);label("나",895,390,150,36);
+        gold("VS",730,500,140,60,"large");panel(560,384,130,46);label("상대",560,389,130,36);panel(905,384,130,46);label("나",905,389,130,36);
+        if(s.bettingEnabled)label("베팅  나 "+s.ownBet+" / 상대 "+s.opponentBet+" · 승부 칩 "+s.matchedBet,480,640,640,32,"small",Align.center);
         var opponent=label(s.opponent().selected?"상대 선택 완료":"상대 선택 중…",590,345,420,36,"small",Align.center);opponent.setColor(s.opponent().selected?MINT:CREAM);
         if(s.phase==Phase.TILE_SELECT){
-            label("내 타일",400,288,800,35,"small",Align.center);
+            gold("◆  내 타일  ◆",400,288,800,35,"small");
             for(int n=1;n<=9;n++){int value=n;TextButton b=tile(String.valueOf(n),365+(n-1)*111,160,94,126,n%2==0,selected==n,()->{selected=value;build();});b.setDisabled(!s.hand.contains(n)||s.me().selected);b.setName("tile-"+n);}
             TextButton confirm=button(s.me().selected?"선택 완료 · 상대 대기":"선택 확정",590,65,420,66,"primary",()->app.send(Command.number(Action.TILE,selected)));confirm.setDisabled(selected==0||s.me().selected);confirm.setName("tile-confirm");
-            gold("내 특수카드 "+s.cards.size()+"장",1260,500,280,40,"default");int index=0;
-            for(Card c:s.cards){int i=index++;TextButton b=button(c.label,1280,420-i*74,230,56,"small",()->cardDialog(c));b.setName("view-"+c.name());}
+            gold("내 특수카드 "+s.cards.size()+"장",1270,474,276,36,"default");int index=0;
+            for(Card c:s.cards){int i=index++;TextButton b=button(c.label,1293,370-i*70,230,56,"small",()->cardDialog(c));b.setName("view-"+c.name());}
         }else special();
         addChipEffect();
     }
@@ -107,7 +107,7 @@ public final class GameScreen extends BaseScreen {
         d.getContentTable().add(scroll).width(780).height(420);d.button("닫기");d.show(stage);scroll.setScrollPercentY(1);stage.setScrollFocus(scroll);
     }
     private TextButton tile(String value,float x,float y,float w,float h,boolean dark,boolean highlight,Runnable action){
-        if(highlight)panel(x-5,y-5,w+10,h+10);
+        if(highlight){var glow=new com.badlogic.gdx.scenes.scene2d.ui.Image(app.theme.panel());glow.setBounds(x-5,y-5,w+10,h+10);content.addActor(glow);}
         TextButton.TextButtonStyle style=new TextButton.TextButtonStyle(app.theme.skin.get("even",TextButton.TextButtonStyle.class));
         TextureRegionDrawable base=new TextureRegionDrawable(new TextureRegion(app.assets.texture("cards/blank.png")));
         style.up=base.tint(dark?new Color(.20f,.20f,.22f,1):Color.WHITE);style.over=base.tint(new Color(1,.82f,.52f,1));style.down=style.over;
@@ -121,15 +121,15 @@ public final class GameScreen extends BaseScreen {
         gold("보유 특수카드",430,292,740,36,"default");int i=0;
         for(Card c:s.cards){float x=s.cards.size()==1?650:520+i*300;TextButton b=button(c.label,x,225,260,60,chosen==c?"primary":"default",()->{chosen=chosen==c?null:c;build();});b.setDisabled(s.me().specialReady);i++;}
         if(s.cards.isEmpty())label("남은 특수카드가 없습니다.",490,225,620,50,"small",Align.center);
-        if(chosen==Card.PREDICT){label("상대 숫자 예상",400,174,800,32,"small",Align.center);for(int n=1;n<=9;n++){int value=n;TextButton b=button(String.valueOf(n),475+(n-1)*73,122,62,44,prediction==n?"primary":"small",()->{prediction=value;build();});b.setDisabled(s.me().specialReady);}}
+        if(chosen==Card.PREDICT){label("상대 숫자 예상",400,174,800,32,"small",Align.center);for(int n=1;n<=9;n++){int value=n;TextButton b=button(String.valueOf(n),475+(n-1)*73,122,62,44,prediction==n?"chosen":"small",()->{prediction=value;build();});b.setDisabled(s.me().specialReady);}}
         if(chosen==Card.DISGUISE){
             label("상대에게 보여줄 홀짝 선택",400,174,800,32,"small",Align.center);
-            for(int option=0;option<2;option++){boolean odd=option==0;TextButton b=button(odd?"홀수로 표시":"짝수로 표시",570+option*240,122,220,44,disguiseOdd!=null&&disguiseOdd==odd?"primary":"small",()->{disguiseOdd=odd;build();});b.setDisabled(s.me().specialReady);b.setName(odd?"disguise-odd":"disguise-even");}
+            for(int option=0;option<2;option++){boolean odd=option==0;TextButton b=button(odd?"홀수로 표시":"짝수로 표시",570+option*240,122,220,44,disguiseOdd!=null&&disguiseOdd==odd?"chosen":"small",()->{disguiseOdd=odd;build();});b.setDisabled(s.me().specialReady);b.setName(odd?"disguise-odd":"disguise-even");}
         }
         TextButton use=button(s.me().specialReady?"확정 완료 · 상대 대기":"선택한 카드 사용",470,55,330,58,"primary",()->app.send(chosen==Card.DISGUISE?Command.disguise(Boolean.TRUE.equals(disguiseOdd)):Command.special(chosen,prediction)));
         use.setDisabled(s.me().specialReady||chosen==null||(chosen==Card.PREDICT&&prediction==0)||(chosen==Card.DISGUISE&&disguiseOdd==null));use.setName("special-use");
         TextButton skip=button("사용 안 함",830,55,290,58,"default",()->app.send(Command.special(null,0)));skip.setDisabled(s.me().specialReady);skip.setName("special-skip");
-        if(chosen!=null)paragraph(description(chosen),1240,400,300,120);
+        if(chosen!=null)paragraph(description(chosen),1250,300,300,130);
     }
     private void result(){
         if(s.bettingEnabled)button("칩 계산 내역",45,115,275,44,"small",this::chipLedger);

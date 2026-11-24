@@ -15,9 +15,9 @@ public final class LobbyScreen extends BaseScreen {
         clear();boolean practice=app.isPractice();
         heading(practice?"AI 연습 대기방":"게임 대기방",practice?"난이도와 연습 상대를 선택한 뒤 준비하세요.":s.message.isBlank()?"같은 테이블에 두 사람이 모이면 시작할 수 있습니다.":s.message);
         if(!practice)gold("접속 인원 "+(s.opponent()==null?"1 / 2":"2 / 2"),1240,834,300,42,"small");
-        portrait(s.me().characterId,90,325,450,400,true);
-        if(s.opponent()!=null)portrait(s.opponent().characterId,1060,325,450,400,true);
-        else{panel(1070,365,430,260);gold("빈 자리",1090,475,390,65,"large");label("상대가 접속하기를 기다리는 중…",1090,405,390,40,"small",Align.center);}
+        portrait(s.me().characterId,100,275,530,445,true);
+        if(s.opponent()!=null)portrait(s.opponent().characterId,970,275,530,445,true);
+        else{panel(1070,360,420,260);gold("빈 자리",1085,470,390,65,"large");label("상대가 접속하기를 기다리는 중…",1090,400,380,40,"small",Align.center);}
         if(practice)practiceOptions();
         panel(100,255,430,76);gold((practice?"나 · ":s.you==0?"방장 · 나  ":"나  ")+s.me().name,120,272,390,42,"title");
         panel(1070,255,430,76);gold(s.opponent()==null?"상대 대기 중":practice?"연습 상대 · "+characterName(s.opponent().characterId):s.opponent().name,1090,272,390,42,"title");
@@ -30,12 +30,12 @@ public final class LobbyScreen extends BaseScreen {
         button("방 나가기",1270,70,230,66,"small",app::confirmLeave).setName("leave-room");
     }
     private void practiceOptions(){
-        panel(570,390,460,335);gold("연습 설정",595,668,410,42,"default");
-        label("난이도",595,624,410,32,"small",Align.left);
+        panel(555,395,490,330);gold("연습 설정",580,672,440,38,"default");rule(620,654,360);
+        label("난이도",580,624,440,32,"small",Align.left);
         PracticeDifficulty[] modes=PracticeDifficulty.values();
         for(int i=0;i<modes.length;i++){
             PracticeDifficulty mode=modes[i];
-            TextButton b=button(mode.name(),595+i*140,566,130,48,mode==app.practiceDifficulty?"primary":"small",()->app.configurePractice(mode,app.practiceOpponent));
+            TextButton b=button(mode.name(),580+i*150,566,140,48,mode==app.practiceDifficulty?"chosen":"small",()->app.configurePractice(mode,app.practiceOpponent));
             b.setName("difficulty-"+mode.name());
         }
         paragraph(app.practiceDifficulty.description,595,510,410,45);

@@ -28,10 +28,10 @@ public final class CardSelectScreen extends BaseScreen {
         for(int i=0;i<Card.values().length;i++){
             Card c=Card.values()[i];float x=95+i*355;boolean chosen=selected.contains(c);
             var frame=panel(x,200,340,510);frame.setColor(chosen?GOLD:com.badlogic.gdx.graphics.Color.WHITE);
-            var art=new kr.ac.c2s.ui.CardArt(app,"cards/specials/"+c.name().toLowerCase(Locale.ROOT)+".png",x+62,393,216,295);content.addActor(art);
+            var art=new kr.ac.c2s.ui.CardArt(app,"cards/specials/"+c.name().toLowerCase(Locale.ROOT)+".png",x+76,436,188,258);content.addActor(art);
             art.addListener(new InputListener(){@Override public boolean touchDown(InputEvent e,float a,float b,int p,int button){toggle(c);return true;}});
-            gold(c.label,x+20,342,300,42,"title");
-            paragraph(shortDescription(c),x+25,264,290,66);
+            gold(c.label,x+20,392,300,40,"title");
+            paragraph(shortDescription(c),x+28,286,284,100);
             TextButton select=button(chosen?"선택됨 · 해제":"선택하기",x+25,212,290,45,chosen?"primary":"small",()->toggle(c));
             select.setDisabled(s.me().loadoutReady);select.setName("loadout-"+c.name());
         }

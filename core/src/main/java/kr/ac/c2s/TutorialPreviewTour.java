@@ -12,7 +12,7 @@ import java.util.*;
 
 /** --tutorial-preview: 메인 메뉴의 튜토리얼 버튼부터 한 판을 끝까지 진행하며, 말풍선이 바뀔 때마다 실제 화면을 캡처한다. */
 public final class TutorialPreviewTour {
-    private final C2SGame app;private final FileHandle dir;private int ticks,bubbles,skipStep;private boolean offered;private String lastText="";
+    private final C2SGame app;private final FileHandle dir;private int ticks,bubbles,skipStep;private boolean offered,started;private String lastText="";
     private final StringBuilder log=new StringBuilder();
     public TutorialPreviewTour(C2SGame app){this.app=app;dir=Gdx.files.absolute(System.getProperty("c2s.smokeDir",".runtime/tutorial-preview"));dir.mkdirs();dir.child("PASS.txt").delete();dir.child("FAILED.txt").delete();}
     public void start(){Timer.schedule(new Timer.Task(){@Override public void run(){try{tick();}catch(Throwable e){e.printStackTrace();dir.child("FAILED.txt").writeString(e+"\n\n"+log,false,"UTF-8");Gdx.app.exit();cancel();}}},1.2f,.5f);}
@@ -28,7 +28,8 @@ public final class TutorialPreviewTour {
             dir.child("PASS.txt").writeString("Tutorial round 1 guided with "+bubbles+" bubbles; skip cancel kept the guide; skip confirm returned to main menu.\n\n"+log,false,"UTF-8");Gdx.app.exit();return;
         }
         if(app.getScreen() instanceof MainMenuScreen){
-            if(find("tutorial-offer")!=null){capture("00-offer");click("tutorial-start");}
+            if(started)return;
+            if(find("tutorial-offer")!=null){capture("00-offer");click("tutorial-start");started=true;}
             else if(!offered){offered=true;capture("00-menu");click("tutorial");}
             return;
         }

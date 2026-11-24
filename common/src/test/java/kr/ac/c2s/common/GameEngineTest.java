@@ -23,6 +23,13 @@ class GameEngineTest {
         }
         assertEquals(Phase.FINAL,e.phase());assertEquals(-1,e.snapshot(0).winner);assertEquals(3,e.snapshot(0).me().life);
     }
+    @Test void historyShowsSpecialCardsUsedByBothSides(){
+        GameEngine e=engine(5);Card mine=e.snapshot(0).cards.get(0);
+        tiles(e,8,3);e.apply(0,Command.special(mine,5));e.apply(1,Command.special(null,0));
+        assertTrue(e.snapshot(0).history.get(0).contains("나 특수: "+mine.label));
+        assertTrue(e.snapshot(0).history.get(0).contains("상대 특수: 미사용"));
+        assertTrue(e.snapshot(1).history.get(0).contains("상대 특수: "+mine.label));
+    }
     @Test void privateInformationAndHintPurchaseAreIsolated(){
         GameEngine e=engine(3);tiles(e,8,2);specials(e);next(e);
         e.apply(0,Command.hint("INSPECT",0));Snapshot own=e.snapshot(0),other=e.snapshot(1);

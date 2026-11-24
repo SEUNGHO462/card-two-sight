@@ -9,6 +9,9 @@
 | Gson | 2.13.2 | https://github.com/google/gson |
 | Gradle Wrapper | 8.14.3 | https://gradle.org/ |
 | JUnit Jupiter · 개발 테스트 | 5.11.4 | https://junit.org/junit5/ |
+| Gowun Batang Regular / Bold | Google Fonts 제공 파일 | https://github.com/google/fonts/tree/main/ofl/gowunbatang · assets/fonts/OFL-GowunBatang.txt |
+| Song Myung | Google Fonts 제공 파일 | https://github.com/google/fonts/tree/main/ofl/songmyung · assets/fonts/OFL-SongMyung.txt |
+| 배경음악 assets/audio/bgm.ogg | Bloodstained Poker · Suno 제작 | https://suno.com/s/rVhwkjuNSWDPl8fA · 사용권 미확인, 공개 전 Suno 요금제 조건 확인 필요 |
 | Nanum Gothic | Google Fonts 제공 파일 | assets/fonts/OFL.txt |
 | Nanum Myeongjo Regular / Bold | Google Fonts 제공 파일 | https://github.com/google/fonts/tree/main/ofl/nanummyeongjo · assets/fonts/OFL-NanumMyeongjo.txt |
 
