@@ -18,7 +18,7 @@ class ServerIntegrationTest {
         @Override public void close()throws IOException{socket.close();}
     }
     @Test void realSocketsCompleteMatchAndRematch()throws Exception{
-        try(GameServer server=new GameServer(0)){server.start();try(Client a=new Client(server.port());Client b=new Client(server.port());Client intruder=new Client(server.port())){
+        try(GameServer server=new GameServer(0,null)){server.start();try(Client a=new Client(server.port());Client b=new Client(server.port());Client intruder=new Client(server.port())){
             a.send(Command.enter(Action.CREATE,"승호","male_handsome","dragon"));assertEquals(0,a.phase(Phase.LOBBY).you);
             b.send(Command.enter(Action.JOIN,"지민","female_leather","DRAGON"));assertEquals(1,b.phase(Phase.LOBBY).you);
             intruder.send(Command.enter(Action.JOIN,"세번째","male_punk","DRAGON"));assertEquals("ERROR",intruder.await(e->"ERROR".equals(e.type)).type);
@@ -31,16 +31,17 @@ class ServerIntegrationTest {
             Snapshot other=b.await(e->e.state!=null&&e.state.opponent().loadoutReady).state;
             assertTrue(other.cards.isEmpty());assertEquals(2,other.opponent().specialCount);
             b.send(Command.loadout(java.util.List.of(Card.DISGUISE,Card.PREDICT)));
-            a.phase(Phase.TILE_SELECT);b.phase(Phase.TILE_SELECT);
+            a.phase(Phase.BET_SELECT);b.phase(Phase.BET_SELECT);
             Snapshot finalA=null,finalB=null;
             for(int n=1;n<=9;n++){
+                a.send(Command.number(Action.BET,1));b.send(Command.number(Action.BET,2));a.phase(Phase.TILE_SELECT);b.phase(Phase.TILE_SELECT);
                 a.send(Command.number(Action.TILE,n));b.send(Command.number(Action.TILE,n));a.phase(Phase.SPECIAL_SELECT);b.phase(Phase.SPECIAL_SELECT);
                 a.send(Command.special(null,0));b.send(Command.special(null,0));a.phase(Phase.ROUND_RESULT);b.phase(Phase.ROUND_RESULT);
                 a.send(Command.of(Action.NEXT));b.send(Command.of(Action.NEXT));a.phase(Phase.ROULETTE_SELECT);b.phase(Phase.ROULETTE_SELECT);
                 a.send(Command.number(Action.CHAMBER,0));b.send(Command.number(Action.CHAMBER,1));a.phase(Phase.ROULETTE_RESULT);b.phase(Phase.ROULETTE_RESULT);
                 a.send(Command.of(Action.NEXT));b.send(Command.of(Action.NEXT));
-                Snapshot afterA=a.await(e->e.state!=null&&(e.state.phase==Phase.TILE_SELECT||e.state.phase==Phase.FINAL)).state;
-                Snapshot afterB=b.await(e->e.state!=null&&(e.state.phase==Phase.TILE_SELECT||e.state.phase==Phase.FINAL)).state;
+                Snapshot afterA=a.await(e->e.state!=null&&(e.state.phase==Phase.BET_SELECT||e.state.phase==Phase.FINAL)).state;
+                Snapshot afterB=b.await(e->e.state!=null&&(e.state.phase==Phase.BET_SELECT||e.state.phase==Phase.FINAL)).state;
                 if(afterA.phase==Phase.FINAL){finalA=afterA;finalB=afterB;break;}
             }
             Snapshot sa=finalA,sb=finalB;assertNotNull(sa);assertNotNull(sb);assertEquals(sa.matchId,sb.matchId);assertEquals(sa.round,sa.draws);assertTrue(sa.round<=9);if(sa.reason.equals("9라운드 종료"))assertEquals(-1,sa.winner);
@@ -49,7 +50,7 @@ class ServerIntegrationTest {
         }}
     }
     @Test void wrongRoomPasswordAndInvalidMessagesAreRejected()throws Exception{
-        try(GameServer server=new GameServer(0)){server.start();try(Client c=new Client(server.port())){
+        try(GameServer server=new GameServer(0,null)){server.start();try(Client c=new Client(server.port())){
             c.send(Command.enter(Action.JOIN,"테스트","male_punk","MISSING"));assertEquals("ERROR",c.await(e->"ERROR".equals(e.type)).type);
             c.send(Command.of(Action.START));assertEquals("ERROR",c.await(e->"ERROR".equals(e.type)).type);
         }}

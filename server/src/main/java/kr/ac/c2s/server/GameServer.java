@@ -13,10 +13,18 @@ import static kr.ac.c2s.common.Protocol.*;
 /** 두 명의 방을 관리하는 TCP 서버. GUI가 없어 서버 PC에서 따로 실행할 수 있다. */
 public final class GameServer implements AutoCloseable {
     private final ServerSocket listener;
+    private final JdbcMatchStore database;
+    private final ExecutorService dbWorker=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"c2s-database");t.setDaemon(true);return t;});
+    private volatile boolean dbReady;
+    private static JdbcMatchStore configuredDatabase(){try{return JdbcMatchStore.configured();}catch(IOException e){System.err.println("DB 설정을 읽지 못했습니다.");return null;}}
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
     private final Set<Session> clients = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean running = new AtomicBoolean(true);
-    public GameServer(int port) throws IOException { listener = new ServerSocket(); listener.setReuseAddress(true); listener.bind(new InetSocketAddress(port)); }
+    public GameServer(int port) throws IOException {this(port,configuredDatabase());}
+    public GameServer(int port,JdbcMatchStore database) throws IOException {
+        this.database=database;listener=new ServerSocket();listener.setReuseAddress(true);listener.bind(new InetSocketAddress(port));
+        if(database!=null)dbWorker.execute(()->{try{database.initialize();dbReady=true;System.out.println("경기 기록 DB 연결 완료");}catch(java.sql.SQLException e){System.err.println("경기 기록 DB 연결 실패 · DB 실행과 설정을 확인하세요.");}});
+    }
     public int port() { return listener.getLocalPort(); }
     public void start() { daemon("c2s-accept", this::accept); }
     public static Thread daemon(String name, Runnable action) { Thread t=new Thread(action,name); t.setDaemon(true); t.start(); return t; }
@@ -82,6 +90,7 @@ public final class GameServer implements AutoCloseable {
         final Session[] seats=new Session[2];
         final boolean[] ready=new boolean[2], rematch=new boolean[2];
         GameEngine engine;
+        String savedMatch="";
         Room(String password) { this.password=password; }
         synchronized void join(Session s) {
             if(engine!=null) throw new IllegalArgumentException("이미 진행 중인 방입니다.");
@@ -92,6 +101,10 @@ public final class GameServer implements AutoCloseable {
         synchronized void apply(Session s, Command c) {
             int p=s.index;
             if(seats[p]!=s) throw new IllegalArgumentException("입장 정보가 만료되었습니다.");
+            if(c.action==Action.HISTORY){
+                if(database==null){s.send(Event.error("이 서버는 DB 기록 저장이 설정되지 않았습니다."));return;}
+                dbWorker.execute(()->{try{if(!dbReady){database.initialize();dbReady=true;}s.send(Event.history(database.recent(20)));}catch(java.sql.SQLException e){s.send(Event.error("경기 기록 DB에 연결하지 못했습니다. 서버의 DB 실행 상태를 확인하세요."));}});return;
+            }
             if(c.action==Action.REMATCH) {
                 if(engine==null || engine.phase()!=Phase.FINAL || seats[0]==null || seats[1]==null)
                     throw new IllegalArgumentException("두 플레이어가 연결된 최종 결과 화면에서 다시 할 수 있습니다.");
@@ -106,8 +119,12 @@ public final class GameServer implements AutoCloseable {
             } else engine.apply(p,c);
             broadcast();
         }
-        void begin() { engine=new GameEngine(seats[0].identity,seats[1].identity,new SecureRandom(),true); Arrays.fill(rematch,false); }
+        void begin() { engine=new GameEngine(seats[0].identity,seats[1].identity,new SecureRandom(),true,true); Arrays.fill(rematch,false); }
         synchronized void broadcast() {
+            if(database!=null&&engine!=null&&engine.phase()==Phase.FINAL&&!savedMatch.equals(engine.matchId())){
+                Snapshot result=engine.snapshot(0);savedMatch=result.matchId;
+                dbWorker.execute(()->{try{if(!dbReady){database.initialize();dbReady=true;}database.save(result);}catch(java.sql.SQLException e){System.err.println("경기 기록 DB 저장 실패 · 경기 ID "+result.matchId);for(Session seat:seats)if(seat!=null)seat.send(Event.error("경기는 종료됐지만 DB 기록 저장에 실패했습니다."));}});
+            }
             for(int viewer=0;viewer<2;viewer++) if(seats[viewer]!=null) {
                 Snapshot state;
                 if(engine==null) {
@@ -134,5 +151,6 @@ public final class GameServer implements AutoCloseable {
         if(!running.compareAndSet(true,false)) return;
         try { listener.close(); } catch(IOException ignored) {}
         for(Session s:List.copyOf(clients)) s.close(); rooms.clear();
+        dbWorker.shutdown();try{if(!dbWorker.awaitTermination(5,TimeUnit.SECONDS))dbWorker.shutdownNow();}catch(InterruptedException e){dbWorker.shutdownNow();Thread.currentThread().interrupt();}
     }
 }
