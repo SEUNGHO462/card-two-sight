@@ -61,7 +61,7 @@ public final class TutorialPreviewTour {
                 if(!enabled("chamber-confirm")){int empty=java.util.stream.IntStream.range(0,9).filter(i->!s.loadedChambers.contains(i)).findFirst().orElseThrow();click("chamber-"+empty);}
                 else click("chamber-confirm");}}
             case ROULETTE_SELECT->{RouletteScreen screen=(RouletteScreen)app.getScreen();
-                if(!s.me().chamberReady&&screen.isPreparationReady()&&enabled("chamber-confirm"))click("chamber-confirm");}
+                if(!s.me().chamberReady&&screen.isPreparationReady()&&enabled("chamber-confirm")){if(s.round==1&&s.boughtHints.isEmpty()&&enabled("hint-RANGE"))click("hint-RANGE");else click("chamber-confirm");}}
             case ROULETTE_RESULT->{if(((RouletteScreen)app.getScreen()).isResultReady()&&!s.me().acknowledged)click("roulette-next");}
             case FINAL->{capture("99-final");dir.child("PASS.txt").writeString("Tutorial reached FINAL in "+s.round+" rounds with "+bubbles+" bubbles.\n\n"+log,false,"UTF-8");Gdx.app.exit();}
         }

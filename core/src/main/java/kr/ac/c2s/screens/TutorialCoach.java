@@ -105,6 +105,7 @@ public final class TutorialCoach {
                 if(!(screen instanceof RouletteScreen r)||!r.isPreparationReady())return new Step("spin","탄창이 돌고 있습니다. 회전이 끝나면 실탄 위치는 보이지 않아요.");
                 Actor confirm=find(screen,"chamber-confirm");
                 if(confirm instanceof TextButton b&&b.isDisabled())return new Step("chamber-pick","탄실 1~9 중 하나를 고르세요.",range("chamber-",0,8));
+                if(!s.boughtHints.isEmpty())return new Step("hint-bought","힌트 결과는 오른쪽 아래 [내가 구매한 힌트]에 나와요.\n결과를 보고 탄실을 바꾸거나 그대로 둔 뒤, 아래 격발 버튼을 누르세요.","chamber-confirm");
                 if(!done.contains("hint"))return new Step("hint","칩으로 힌트를 살 수 있어요. 라운드마다 하나만 살 수 있고, 안 사도 됩니다.\n준비되면 아래 격발 버튼을 누르세요. 실탄이면 목숨이 1 줄어요.",names("hint-RANGE","hint-INSPECT"),names("chamber-confirm"));
                 return new Step("hint","탄실을 골랐으면 격발 버튼을 누르세요.","chamber-confirm");
             }
