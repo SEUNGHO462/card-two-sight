@@ -33,3 +33,9 @@ tasks.named('startScripts') {
         }.join('\r\n') + '\r\n'
     }
 }
+
+run {
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('mac')) {
+        jvmArgs '-XstartOnFirstThread'
+    }
+}
