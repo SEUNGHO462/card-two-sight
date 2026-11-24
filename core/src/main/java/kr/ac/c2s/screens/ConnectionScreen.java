@@ -17,7 +17,7 @@ public final class ConnectionScreen extends BaseScreen {
         panel(715,185,800,550);gold("2인 온라인 테이블",780,653,670,56,"title");
         label("서버 주소",760,568,180,40,"small",Align.left);host=field("127.0.0.1","방장 PC의 IP 주소",960,565,490,48);
         label("포트",760,498,180,40,"small",Align.left);port=field("54555","포트",960,495,200,48);port.setMaxLength(5);
-        label("방 비밀번호",760,428,180,40,"small",Align.left);password=field("DRAGON","한글·영문·숫자 3~16자",960,425,490,48);password.setMaxLength(16);
+        label("방 비밀번호",760,428,180,40,"small",Align.left);password=field("","직접 설정한 비밀번호 3~16자",960,425,490,48);password.setMaxLength(16);
         TextButton toggle=button("내 PC에서 서버도 실행: 켜짐",770,350,680,48,"small",()->{});
         toggle.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ClickListener(){@Override public void clicked(com.badlogic.gdx.scenes.scene2d.InputEvent e,float x,float y){localServer=!localServer;toggle.setText("내 PC에서 서버도 실행: "+(localServer?"켜짐":"꺼짐"));}});
         create=button("방 만들기",770,260,325,64,"primary",()->enter(true));join=button("방 입장",1125,260,325,64,"default",()->enter(false));
