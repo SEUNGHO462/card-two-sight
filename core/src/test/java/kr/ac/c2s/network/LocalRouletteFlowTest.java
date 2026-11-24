@@ -13,15 +13,19 @@ class LocalRouletteFlowTest {
             gateway.setListener(events::add);gateway.send(Command.of(Action.CREATE));state(events,s->s.phase==Phase.LOBBY);
             gateway.send(Command.of(Action.READY));state(events,s->s.me().ready);
             gateway.send(Command.of(Action.START));state(events,s->s.phase==Phase.LOADOUT_SELECT);
-            gateway.send(Command.loadout(List.of(Card.SCOUT,Card.PREDICT)));state(events,s->s.phase==Phase.TILE_SELECT);
+            gateway.send(Command.loadout(List.of(Card.SCOUT,Card.PREDICT)));state(events,s->s.phase==Phase.BET_SELECT);
+            gateway.send(Command.number(Action.BET,1));state(events,s->s.phase==Phase.TILE_SELECT);
             gateway.send(Command.number(Action.TILE,8));state(events,s->s.phase==Phase.SPECIAL_SELECT);
-            gateway.send(Command.special(null,0));state(events,s->s.phase==Phase.ROUND_RESULT);
+            gateway.send(Command.special(null,0));Snapshot settled=state(events,s->s.phase==Phase.ROUND_RESULT);
             gateway.send(Command.of(Action.NEXT));state(events,s->s.phase==Phase.ROULETTE_SELECT);
             gateway.send(Command.hint("INSPECT",0));Snapshot receipt=state(events,s->s.hintHistory.size()==1);
-            assertEquals(4,receipt.me().chips);assertTrue(receipt.knownChambers.containsKey(0));assertTrue(receipt.hintHistory.get(0).contains("R1"));
+            assertEquals(settled.me().chips-8,receipt.me().chips);assertTrue(receipt.knownChambers.containsKey(0));assertTrue(receipt.hintHistory.get(0).contains("R1"));
             gateway.send(Command.number(Action.CHAMBER,0));state(events,s->s.phase==Phase.ROULETTE_RESULT);
-            gateway.send(Command.of(Action.NEXT));Snapshot next=state(events,s->s.phase==Phase.TILE_SELECT&&s.round==2);
-            assertEquals(receipt.hintHistory,next.hintHistory);assertEquals(4,next.me().chips);assertTrue(next.knownChambers.isEmpty());
+            gateway.send(Command.of(Action.NEXT));Snapshot next=state(events,s->s.phase==Phase.BET_SELECT&&s.round==2);
+            assertEquals(receipt.hintHistory,next.hintHistory);assertEquals(receipt.me().chips,next.me().chips);assertTrue(next.knownChambers.isEmpty());
+            assertEquals(1,next.opponentObservations.size());
+            assertEquals(1,next.opponentObservations.get(0).round);
+            assertFalse(next.opponentObservations.get(0).possibleOpponentTiles.isEmpty());
         }
     }
     private Snapshot state(BlockingQueue<Event> events,Predicate<Snapshot> condition)throws Exception{
