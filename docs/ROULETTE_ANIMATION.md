@@ -1,4 +1,8 @@
-# 룰렛 연출 변경 · 2026-10-26
+# 룰렛 연출과 제작 이력
+
+현재 타이밍은 ShotTimeline의 FIRE 0.85초 / LIFE 1.7초 / END 3.15초입니다. 아래 날짜·테스트 수는 각 제작 시점의 기록이며 현재 전체 검증 수가 아닙니다. 현재 규칙과 검증 범위는 RULES.md와 VALIDATION.md를 따릅니다.
+
+## 초기 변경 · 2026-10-26
 
 사용 중인 바탕화면 `card-two-sight` 프로젝트에 직접 적용했습니다.
 
@@ -49,7 +53,7 @@
 - assets/characters/roulette/female_silver-poses-v2.png
 - assets/characters/roulette/male_punk-poses-v2.png
 
-기존 v1 파일은 보관하고, v2가 있는 인물만 새 파일을 사용합니다. 탄창 선택 화면의 변경 제안은 보류했습니다. 내장 image_gen.imagegen으로 제작했으며 실제 프롬프트와 원본·저장 위치는 ROULETTE_ASSET_PROMPTS_V2.json에 있습니다. 빌드·14개 기존 테스트 및 네 인물의 실제 자세 전환 렌더링을 확인했습니다.
+기존 v1 파일은 보관하고, v2가 있는 인물만 새 파일을 사용합니다. 당시에는 탄창 선택 화면 변경을 보류했습니다. 이후 직접 장전·회전·바로 격발 흐름을 적용했으며 현재 동작은 ROULETTE_MANUAL_LOADING.md를 따릅니다. 내장 image_gen.imagegen으로 제작했으며 실제 프롬프트와 원본·저장 위치는 ROULETTE_ASSET_PROMPTS_V2.json에 있습니다. 빌드·14개 기존 테스트 및 네 인물의 실제 자세 전환 렌더링을 확인했습니다.
 ## 마담 류 추가 수정 v3
 
 사용자 요청에 따라 여섯 자세 모두 오른손에 리볼버를 추가하고 총구를 몸에서 떨어진 바깥쪽 위로 향하게 했습니다. assets/characters/roulette/female_silver-poses-v3.png를 사용하며, v2 빈손 이미지는 보관합니다. 내장 image_gen.imagegen 편집을 사용했으며 프롬프트·원본·최종 경로는 SILVER_UPWARD_POSES_V3.json에 있습니다. 빌드·14개 테스트·실제 게임 렌더링을 확인했습니다.
